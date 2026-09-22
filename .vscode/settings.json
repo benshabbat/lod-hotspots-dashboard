@@ -1,0 +1,7 @@
+{
+  "liveServer.settings.defaultBrowser": "chrome",
+  "liveServer.settings.port": 5500,
+  "editor.formatOnSave": true,
+  "html.format.enable": true,
+  "files.autoSave": "afterDelay"
+}

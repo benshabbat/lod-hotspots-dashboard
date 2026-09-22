@@ -1,0 +1,19 @@
+{
+  "name": "lod-hotspots-dashboard",
+  "version": "1.0.0",
+  "description": "Responsive Municipal Command & Control Hotspots Dashboard for Lod Municipality",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "keywords": [
+    "lod",
+    "hotspots",
+    "gis",
+    "maps",
+    "dashboard",
+    "municipality"
+  ],
+  "author": "Lod Municipality Security Division",
+  "license": "MIT"
+}
