@@ -404,7 +404,7 @@
 
     /* Refined incident feed */
     .sidebar-view {
-      width: 520px;
+      width: clamp(420px, 36vw, 520px);
       background: #f4f7fb;
       border-left-color: #dbe3ef;
     }
@@ -869,8 +869,16 @@
         display: none;
         border-left: none;
       }
+      .sidebar-header {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
       .tables-scroll-container {
         padding-bottom: 70px;
+        width: 100%;
+        max-width: 780px;
+        margin: 0 auto;
       }
       .legend-card {
         display: none;
@@ -885,17 +893,24 @@
 
     @media (max-width: 600px) {
       .app-header {
-        padding: 0 10px;
+        padding: 0 9px;
       }
       .header-titles p {
         display: none;
       }
       .city-logo {
-        font-size: 13px;
-        padding: 2px 7px;
+        display: none;
       }
       .header-titles h1 {
-        font-size: 14px;
+        font-size: 13.5px;
+        line-height: 1.15;
+      }
+      .header-right { min-width: 0; }
+      .header-titles { min-width: 0; }
+      .header-left { flex: 0 0 auto; }
+      .btn-whatsapp {
+        padding: 5px 9px;
+        font-size: 11.5px;
       }
       .pin-texts {
         display: none;
@@ -913,15 +928,53 @@
         width: 48px;
         height: 48px;
       }
-      .sidebar-header { padding: 12px; }
-      .sidebar-header h2 { font-size: 16px; }
+      .sidebar-header { padding: 11px 12px 10px; }
+      .sidebar-header-top { gap: 8px; }
+      .sidebar-header h2 { min-width: 0; font-size: 16px; line-height: 1.2; }
+      .visible-counter { flex: 0 0 auto; padding: 3px 8px; font-size: 10.5px; }
       .sidebar-header p { display: none; }
       .search-box { margin-top: 9px; }
-      .tables-scroll-container { padding: 12px 10px 78px; gap: 14px; }
+      .search-input { padding-top: 9px; padding-bottom: 9px; }
+      .tables-scroll-container { padding: 12px 10px 78px; gap: 15px; }
+      .table-cat-title { gap: 8px; align-items: center; }
+      .cat-title-label { min-width: 0; line-height: 1.2; }
+      .cat-title-icon { width: 28px; height: 28px; flex: 0 0 28px; }
+      .cat-badge { flex: 0 0 auto; font-size: 10px; }
       .event-card { padding: 11px 12px 10px; }
-      .event-card-title-row { gap: 6px; }
+      .event-card-head { gap: 9px; }
+      .event-icon { width: 35px; height: 35px; flex-basis: 35px; font-size: 17px; }
+      .event-card-title-row { gap: 6px; flex-wrap: wrap; }
       .event-name { font-size: 13px; }
-      .event-status { flex-wrap: wrap; }
+      .event-location, .event-notes { overflow-wrap: anywhere; }
+      .event-status {
+        display: grid;
+        grid-template-columns: auto auto minmax(0, 1fr);
+        gap: 5px;
+      }
+      .event-card-footer { gap: 6px; }
+      .event-card .action-links { flex: 1; justify-content: flex-end; }
+      .event-card .act-link { min-height: 28px; }
+      .mobile-drawer {
+        left: 8px;
+        right: 8px;
+        bottom: 64px;
+        max-height: calc(100dvh - 130px);
+        overflow-y: auto;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .app-header { gap: 6px; }
+      .header-titles h1 { font-size: 12.5px; }
+      .btn-whatsapp { padding: 5px 7px; }
+      .sidebar-header h2 { font-size: 14.5px; }
+      .visible-counter { font-size: 10px; }
+      .table-cat-title { align-items: flex-start; }
+      .event-card-title-row { flex-direction: column; align-items: flex-start; }
+      .event-number { display: none; }
+      .event-card .action-links { width: 100%; }
+      .event-card .act-link { flex: 1; justify-content: center; }
+      .drawer-actions { flex-direction: column; }
     }
   </style>
 </head>
@@ -1481,6 +1534,7 @@
       var url = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(text);
       window.open(url, '_blank');
     }
+
   </script>
 </body>
 </html>
