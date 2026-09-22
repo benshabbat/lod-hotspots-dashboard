@@ -359,54 +359,6 @@
       border-radius: 4px;
       border: 1px solid #cbd5e1;
     }
-    .custom-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 11.5px;
-    }
-    .custom-table th {
-      background: #f1f5f9;
-      color: #334155;
-      font-weight: 800;
-      padding: 5px 8px;
-      border-bottom: 1px solid #cbd5e1;
-      text-align: right;
-    }
-    .custom-table th.num-col {
-      width: 32px;
-      text-align: center;
-      border-left: 1px solid #cbd5e1;
-    }
-    .custom-table td {
-      padding: 7px 8px;
-      border-bottom: 1px solid #f1f5f9;
-      vertical-align: middle;
-      line-height: 1.35;
-    }
-    .custom-table tr:last-child td {
-      border-bottom: none;
-    }
-    .custom-table td.num-cell {
-      text-align: center;
-      font-weight: 900;
-      color: #2563eb;
-      border-left: 1px solid #f1f5f9;
-      background: #fcfcfc;
-    }
-    .item-title {
-      font-weight: 800;
-      color: #0f172a;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-    .item-subtitle {
-      color: #475569;
-      font-size: 11px;
-      margin-top: 2px;
-    }
     .action-links {
       display: flex;
       gap: 8px;
@@ -432,23 +384,6 @@
       border-color: #2563eb;
     }
 
-    /* ROW ACTIVE & HOVER STATES */
-    .custom-table tbody tr {
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .custom-table tbody tr:hover {
-      background: #f8fafc;
-    }
-    .custom-table tbody tr.active-row {
-      background: #eff6ff !important;
-      box-shadow: inset 4px 0 0 #2563eb, 0 2px 8px rgba(37,99,235,0.15) !important;
-    }
-    .custom-table tbody tr.active-row .item-title {
-      color: #1d4ed8 !important;
-      font-weight: 900 !important;
-    }
-
     .day-tag {
       display: inline-block;
       font-size: 10px;
@@ -466,6 +401,167 @@
       color: #3730a3;
       border: 1px solid #c7d2fe;
     }
+
+    /* Refined incident feed */
+    .sidebar-view {
+      width: 520px;
+      background: #f4f7fb;
+      border-left-color: #dbe3ef;
+    }
+    .sidebar-header {
+      background: rgba(255,255,255,0.97);
+      padding: 16px 18px 14px;
+      border-bottom: 1px solid #dbe3ef;
+      box-shadow: 0 4px 18px rgba(15,23,42,0.06);
+    }
+    .sidebar-header-top { margin-bottom: 5px; }
+    .sidebar-header h2 { font-size: 18px; }
+    .sidebar-header p { font-size: 12px; }
+    .visible-counter {
+      background: #0f2f76;
+      color: #ffffff;
+      border-color: #1d4ed8;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11.5px;
+    }
+    .search-box { margin-top: 12px; }
+    .search-input {
+      border-color: #d4dce8;
+      border-radius: 10px;
+      padding: 10px 36px 10px 34px;
+      font-size: 12.5px;
+    }
+    .search-icon { right: 12px; font-size: 14px; }
+    .search-clear { left: 10px; width: 21px; height: 21px; }
+    .tables-scroll-container { padding: 16px; gap: 16px; }
+    .report-table-box {
+      border: 0;
+      border-radius: 14px;
+      overflow: visible;
+      background: transparent;
+      box-shadow: none;
+    }
+    .table-cat-title {
+      background: transparent;
+      border: 0;
+      padding: 0 2px 8px;
+      font-size: 13px;
+    }
+    .cat-title-label { display: flex; align-items: center; gap: 8px; }
+    .cat-title-icon {
+      width: 30px;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9px;
+      background: var(--cat-bg, #eff6ff);
+      box-shadow: inset 0 0 0 1px rgba(15,23,42,0.08);
+      font-size: 15px;
+    }
+    .cat-badge {
+      background: #e9eef6;
+      color: #475569;
+      border: 0;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .event-cards { display: flex; flex-direction: column; gap: 8px; }
+    .event-card {
+      position: relative;
+      background: #ffffff;
+      border: 1px solid #e1e7f0;
+      border-radius: 12px;
+      padding: 12px 13px 11px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 2px 7px rgba(15,23,42,0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .event-card::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 0 auto;
+      width: 4px;
+      background: var(--accent, #2563eb);
+    }
+    .event-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent, #2563eb);
+      box-shadow: 0 8px 20px rgba(15,23,42,0.11);
+    }
+    .event-card:focus-visible { outline: 3px solid rgba(37,99,235,0.25); outline-offset: 2px; }
+    .event-card-head { display: flex; align-items: flex-start; gap: 10px; }
+    .event-icon {
+      width: 38px;
+      height: 38px;
+      flex: 0 0 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 11px;
+      background: var(--accent-bg, #eff6ff);
+      font-size: 19px;
+      box-shadow: inset 0 0 0 1px rgba(15,23,42,0.08);
+    }
+    .event-card-copy { flex: 1; min-width: 0; }
+    .event-card-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .event-name { color: #0f172a; font-size: 13.5px; line-height: 1.25; font-weight: 900; }
+    .event-location { color: #475569; font-size: 11.5px; font-weight: 700; margin-top: 3px; line-height: 1.3; }
+    .event-notes { color: #475569; font-size: 11.5px; margin-top: 9px; line-height: 1.45; }
+    .event-status {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      margin-top: 9px;
+      padding: 7px 9px;
+      border-radius: 8px;
+      background: #f0fdf4;
+      color: #166534;
+      font-size: 11px;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+    .status-label { font-weight: 900; white-space: nowrap; }
+    .event-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 10px;
+      padding-top: 9px;
+      border-top: 1px solid #edf1f6;
+    }
+    .event-number { color: #94a3b8; font-size: 10.5px; font-weight: 800; }
+    .event-card .action-links { margin: 0; gap: 6px; }
+    .event-card .act-link { padding: 4px 8px; border-radius: 7px; font-size: 10.8px; }
+    .event-card.active-row {
+      border-color: var(--accent, #2563eb);
+      background: linear-gradient(110deg, #ffffff 58%, var(--accent-bg, #eff6ff));
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.12), 0 10px 24px rgba(15,23,42,0.13);
+      transform: translateY(-1px);
+    }
+    .event-card.active-row .event-name { color: var(--accent, #1d4ed8); }
+    .event-card .day-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 7px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .no-results {
+      display: none;
+      text-align: center;
+      background: #ffffff;
+      border: 1px dashed #cbd5e1;
+      border-radius: 14px;
+      padding: 34px 18px;
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .no-results-icon { display: block; margin-bottom: 6px; font-size: 28px; }
 
     /* Custom Incident Marker Pins */
     .leaflet-incident-div-icon {
@@ -817,6 +913,15 @@
         width: 48px;
         height: 48px;
       }
+      .sidebar-header { padding: 12px; }
+      .sidebar-header h2 { font-size: 16px; }
+      .sidebar-header p { display: none; }
+      .search-box { margin-top: 9px; }
+      .tables-scroll-container { padding: 12px 10px 78px; gap: 14px; }
+      .event-card { padding: 11px 12px 10px; }
+      .event-card-title-row { gap: 6px; }
+      .event-name { font-size: 13px; }
+      .event-status { flex-wrap: wrap; }
     }
   </style>
 </head>
@@ -1069,6 +1174,10 @@
       markerInstances[ev.id] = marker;
     });
 
+    function eventCountLabel(count) {
+      return count === 1 ? 'אירוע אחד' : count + ' אירועים';
+    }
+
     // Build Categorized Tables in Sidebar
     function buildSidebarTables() {
       var container = document.getElementById('tablesContainer');
@@ -1094,46 +1203,56 @@
         box.id = 'cat-box-' + catGroup.key;
         box.setAttribute('data-cat', catGroup.key);
 
+        var categoryColor = catGroup.items[0].badge_color;
+        var categoryBg = catGroup.items[0].badge_bg;
+        box.style.setProperty('--cat-color', categoryColor);
+        box.style.setProperty('--cat-bg', categoryBg);
+
         var rowsHtml = catGroup.items.map(function(ev, idx) {
           var dayTagClass = ev.day_code === 'sunday' ? 'tag-sun' : 'tag-mon';
           return `
-            <tr id="row-ev-${ev.id}" data-id="${ev.id}" data-day="${ev.day_code}" data-cat="${ev.category}" onclick="selectEvent(${ev.id}, 'table')">
-              <td class="num-cell">${idx + 1}</td>
-              <td>
-                <div class="item-title">
-                  <span class="day-tag ${dayTagClass}">${ev.day_badge}</span>
-                  <span>${ev.street}</span>
-                  <span style="color:#64748b; font-weight:600; font-size:11px;">(${ev.area})</span>
+            <article class="event-card" id="row-ev-${ev.id}" data-id="${ev.id}" data-day="${ev.day_code}" data-cat="${ev.category}"
+              style="--accent:${ev.badge_color}; --accent-bg:${ev.badge_bg};" tabindex="0" role="button"
+              aria-label="${ev.event}, ${ev.street}" onclick="selectEvent(${ev.id}, 'table')"
+              onkeydown="if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); selectEvent(${ev.id}, 'table'); }">
+              <div class="event-card-head">
+                <div class="event-icon" aria-hidden="true">${ev.icon}</div>
+                <div class="event-card-copy">
+                  <div class="event-card-title-row">
+                    <div class="event-name">${ev.event}</div>
+                    <span class="day-tag ${dayTagClass}">${ev.day_badge}</span>
+                  </div>
+                  <div class="event-location">📍 ${ev.street} · ${ev.area}</div>
                 </div>
-                <div class="item-subtitle">${ev.notes}</div>
+              </div>
+              <div class="event-notes">${ev.notes}</div>
+              <div class="event-status"><span aria-hidden="true">✓</span><span class="status-label">טיפול:</span><span>${ev.action}</span></div>
+              <div class="event-card-footer">
+                <span class="event-number">אירוע #${ev.id}</span>
                 <div class="action-links">
                   <a href="${ev.gmaps_url}" target="_blank" class="act-link" onclick="event.stopPropagation();">📍 Google Maps</a>
                   <a href="${ev.waze_url}" target="_blank" class="act-link" onclick="event.stopPropagation();">🚗 Waze</a>
                 </div>
-              </td>
-            </tr>
+              </div>
+            </article>
           `;
         }).join('');
 
         box.innerHTML = `
           <div class="table-cat-title">
-            <span>${catGroup.icon} ${catGroup.title}</span>
-            <span class="cat-badge" id="cat-badge-${catGroup.key}">${catGroup.items.length} אירועים</span>
+            <span class="cat-title-label"><span class="cat-title-icon">${catGroup.icon}</span>${catGroup.title}</span>
+            <span class="cat-badge" id="cat-badge-${catGroup.key}">${eventCountLabel(catGroup.items.length)}</span>
           </div>
-          <table class="custom-table">
-            <thead>
-              <tr>
-                <th class="num-col">מס'</th>
-                <th>מיקום ומהות האירוע</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rowsHtml}
-            </tbody>
-          </table>
+          <div class="event-cards">${rowsHtml}</div>
         `;
         container.appendChild(box);
       });
+
+      var emptyState = document.createElement('div');
+      emptyState.className = 'no-results';
+      emptyState.id = 'noResults';
+      emptyState.innerHTML = '<span class="no-results-icon">🔎</span><strong>לא נמצאו אירועים</strong><br>נסו לשנות את החיפוש או לבחור מסנן אחר';
+      container.appendChild(emptyState);
     }
 
     buildSidebarTables();
@@ -1146,7 +1265,7 @@
       if (!ev || !m) return;
 
       // 1. Highlight Row in Table
-      document.querySelectorAll('.custom-table tbody tr').forEach(function(r) {
+      document.querySelectorAll('.event-card').forEach(function(r) {
         r.classList.remove('active-row');
       });
       var targetRow = document.getElementById('row-ev-' + id);
@@ -1183,7 +1302,7 @@
 
     function clearActiveRow() {
       activeEventId = null;
-      document.querySelectorAll('.custom-table tbody tr').forEach(function(r) {
+      document.querySelectorAll('.event-card').forEach(function(r) {
         r.classList.remove('active-row');
       });
       document.querySelectorAll('.leaflet-incident-div-icon').forEach(function(p) {
@@ -1284,13 +1403,13 @@
 
       // 3. Update Category Boxes in Sidebar
       document.querySelectorAll('.report-table-box').forEach(function(box) {
-        var rows = box.querySelectorAll('tbody tr');
+        var rows = box.querySelectorAll('.event-card');
         var visRows = Array.from(rows).filter(r => r.style.display !== 'none');
         box.style.display = visRows.length > 0 ? '' : 'none';
         var catKey = box.getAttribute('data-cat');
         var badge = document.getElementById('cat-badge-' + catKey);
         if (badge) {
-          badge.innerText = visRows.length + ' אירועים';
+          badge.innerText = eventCountLabel(visRows.length);
         }
       });
 
@@ -1298,6 +1417,11 @@
       var counter = document.getElementById('visibleCounter');
       if (counter) {
         counter.innerText = `מציג ${visibleCount} מתוך ${eventsData.length}`;
+      }
+
+      var noResults = document.getElementById('noResults');
+      if (noResults) {
+        noResults.style.display = visibleCount === 0 ? 'block' : 'none';
       }
 
       // 5. Smart Map Framing
