@@ -111,10 +111,9 @@
     .app-main {
       flex: 1;
       display: flex;
-      flex-direction: row;
-      width: 100%;
       height: calc(100vh - 56px);
       height: calc(100dvh - 56px);
+      width: 100%;
       overflow: hidden;
       position: relative;
     }
@@ -147,6 +146,7 @@
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
       pointer-events: none;
+      direction: rtl;
     }
     .chips-carousel::-webkit-scrollbar { display: none; }
     .chip {
@@ -155,7 +155,7 @@
       backdrop-filter: blur(8px);
       border: 1px solid rgba(255,255,255,0.25);
       color: #ffffff;
-      padding: 5px 11px;
+      padding: 5px 12px;
       border-radius: 20px;
       font-size: 11.5px;
       font-weight: 800;
@@ -164,17 +164,27 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       display: flex;
       align-items: center;
-      gap: 4px;
-      transition: all 0.2s;
+      gap: 5px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
     }
-    .chip:hover, .chip.active {
-      background: #2563eb;
+    .chip:hover {
+      background: #1e40af;
       border-color: #93c5fd;
       transform: translateY(-1px);
     }
     .chip.day-chip {
-      background: rgba(30, 64, 175, 0.9);
-      border-color: #60a5fa;
+      background: rgba(30, 58, 138, 0.95);
+      border-color: #3b82f6;
+    }
+    /* ACTIVE CHIP STYLE - HIGH CONTRAST & VISIBILITY */
+    .chip.active, .chip.day-chip.active {
+      background: #2563eb !important;
+      color: #ffffff !important;
+      border-color: #ffffff !important;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5), 0 6px 16px rgba(0,0,0,0.4) !important;
+      transform: translateY(-2px) scale(1.05) !important;
+      font-weight: 900 !important;
     }
 
     /* Desktop Floating Legend */
@@ -238,36 +248,79 @@
       border-bottom: 2px solid #cbd5e1;
       flex-shrink: 0;
     }
+    .sidebar-header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
     .sidebar-header h2 {
-      font-size: 16px;
+      font-size: 15.5px;
       font-weight: 900;
       color: #0f172a;
       display: flex;
       align-items: center;
       gap: 6px;
     }
+    .visible-counter {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
     .sidebar-header p {
       font-size: 11.5px;
       color: #64748b;
-      margin-top: 2px;
+      margin-top: 1px;
     }
     .search-box {
       margin-top: 8px;
+      position: relative;
     }
     .search-input {
       width: 100%;
       background: #ffffff;
       border: 1.5px solid #cbd5e1;
       border-radius: 6px;
-      padding: 6px 12px;
+      padding: 6px 30px 6px 12px;
       font-size: 12px;
       font-family: inherit;
       direction: rtl;
+      transition: all 0.2s;
     }
     .search-input:focus {
       outline: none;
       border-color: #2563eb;
       box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+    }
+    .search-icon {
+      position: absolute;
+      right: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      color: #94a3b8;
+      pointer-events: none;
+    }
+    .search-clear {
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #e2e8f0;
+      border: none;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      cursor: pointer;
+      color: #475569;
     }
 
     .tables-scroll-container {
@@ -284,103 +337,146 @@
       overflow: hidden;
       background: #ffffff;
       box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      transition: all 0.2s;
     }
     .table-cat-title {
       background: #e2e8f0;
       color: #0f172a;
       font-weight: 900;
-      font-size: 13px;
-      padding: 5px 10px;
-      text-align: center;
+      font-size: 12.5px;
+      padding: 6px 10px;
       border-bottom: 1.5px solid #64748b;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
     }
-    .table-cat-title .cat-badge {
-      font-size: 11px;
+    .cat-badge {
       background: #ffffff;
-      padding: 1px 7px;
-      border-radius: 10px;
+      color: #1e293b;
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 4px;
       border: 1px solid #cbd5e1;
-      font-weight: 700;
     }
     .custom-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 12px;
+      font-size: 11.5px;
     }
     .custom-table th {
       background: #f1f5f9;
-      color: #1e293b;
+      color: #334155;
       font-weight: 800;
       padding: 5px 8px;
-      border-bottom: 1px solid #94a3b8;
+      border-bottom: 1px solid #cbd5e1;
       text-align: right;
     }
     .custom-table th.num-col {
-      width: 38px;
+      width: 32px;
       text-align: center;
-      border-left: 1px solid #94a3b8;
+      border-left: 1px solid #cbd5e1;
     }
     .custom-table td {
-      padding: 6px 8px;
-      border-bottom: 1px solid #e2e8f0;
+      padding: 7px 8px;
+      border-bottom: 1px solid #f1f5f9;
       vertical-align: middle;
+      line-height: 1.35;
     }
     .custom-table tr:last-child td {
       border-bottom: none;
     }
-    .custom-table tr:hover {
-      background: #eff6ff;
-    }
     .custom-table td.num-cell {
       text-align: center;
-      font-weight: 800;
-      color: #334155;
-      border-left: 1px solid #e2e8f0;
+      font-weight: 900;
+      color: #2563eb;
+      border-left: 1px solid #f1f5f9;
+      background: #fcfcfc;
     }
-    .day-tag {
-      display: inline-block;
-      font-size: 10px;
-      font-weight: 800;
-      padding: 1px 5px;
-      border-radius: 4px;
-      margin-left: 4px;
-    }
-    .tag-sun { background: #fed7aa; color: #9a3412; }
-    .tag-mon { background: #bfdbfe; color: #1e40af; }
     .item-title {
       font-weight: 800;
       color: #0f172a;
-      font-size: 12.5px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
     }
     .item-subtitle {
-      font-size: 11px;
       color: #475569;
-      margin-top: 1px;
+      font-size: 11px;
+      margin-top: 2px;
     }
     .action-links {
       display: flex;
       gap: 8px;
-      margin-top: 3px;
+      margin-top: 4px;
     }
     .act-link {
+      color: #2563eb;
+      text-decoration: none;
+      font-size: 10.5px;
+      font-weight: 800;
+      background: #eff6ff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid #bfdbfe;
       display: inline-flex;
       align-items: center;
       gap: 3px;
-      font-size: 10.5px;
-      color: #2563eb;
-      font-weight: 700;
-      text-decoration: none;
+      transition: all 0.15s;
     }
     .act-link:hover {
-      text-decoration: underline;
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #2563eb;
     }
 
-    /* Marker Pins */
+    /* ROW ACTIVE & HOVER STATES */
+    .custom-table tbody tr {
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .custom-table tbody tr:hover {
+      background: #f8fafc;
+    }
+    .custom-table tbody tr.active-row {
+      background: #eff6ff !important;
+      box-shadow: inset 4px 0 0 #2563eb, 0 2px 8px rgba(37,99,235,0.15) !important;
+    }
+    .custom-table tbody tr.active-row .item-title {
+      color: #1d4ed8 !important;
+      font-weight: 900 !important;
+    }
+
+    .day-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 900;
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+    .day-tag.tag-sun {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+    .day-tag.tag-mon {
+      background: #e0e7ff;
+      color: #3730a3;
+      border: 1px solid #c7d2fe;
+    }
+
+    /* Custom Incident Marker Pins */
+    .leaflet-incident-div-icon {
+      background: none !important;
+      border: none !important;
+    }
     .custom-incident-pin {
       position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
     }
     .pin-radar-ring {
@@ -388,18 +484,21 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 44px;
-      height: 44px;
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
-      border: 2.5px solid rgba(239, 68, 68, 0.7);
-      background: rgba(239, 68, 68, 0.2);
-      box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
+      border: 2.5px solid #ef4444;
+      animation: radarPulse 1.8s infinite cubic-bezier(0.2, 0.8, 0.4, 1);
       pointer-events: none;
       z-index: 1;
     }
+    @keyframes radarPulse {
+      0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0.9; }
+      100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+    }
     .pin-badge-container {
       position: relative;
-      z-index: 5;
+      z-index: 2;
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -409,12 +508,26 @@
       padding: 3px 8px 3px 4px;
       box-shadow: 0 4px 14px rgba(0,0,0,0.45);
       white-space: nowrap;
-      transition: transform 0.2s;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .pin-badge-container:hover {
-      transform: scale(1.08);
-      z-index: 100;
+      transform: scale(1.1);
+      z-index: 500;
     }
+    /* ACTIVE PIN ON MAP */
+    .leaflet-incident-div-icon.selected-pin .pin-badge-container {
+      transform: scale(1.18) !important;
+      border-color: #2563eb !important;
+      box-shadow: 0 0 0 4px #2563eb, 0 10px 25px rgba(0,0,0,0.55) !important;
+      z-index: 9999 !important;
+    }
+    .leaflet-incident-div-icon.selected-pin .pin-radar-ring {
+      animation-duration: 0.8s;
+      border-color: #2563eb;
+      width: 64px;
+      height: 64px;
+    }
+
     .pin-icon-circle {
       width: 28px;
       height: 28px;
@@ -481,25 +594,28 @@
       left: 8px;
       background: #f1f5f9;
       border: none;
-      border-radius: 50%;
       width: 26px;
       height: 26px;
-      font-weight: bold;
+      border-radius: 50%;
+      font-size: 13px;
+      font-weight: 900;
       cursor: pointer;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .drawer-title {
       font-size: 14.5px;
       font-weight: 900;
       color: #0f172a;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      padding-left: 28px;
     }
     .drawer-loc {
-      font-size: 11.5px;
+      font-size: 12px;
       color: #64748b;
-      margin-top: 1px;
-      font-weight: 600;
+      margin-top: 2px;
+      font-weight: 700;
     }
     .drawer-desc {
       font-size: 12px;
@@ -564,15 +680,17 @@
       cursor: pointer;
       gap: 2px;
       height: 100%;
-      transition: background 0.15s, color 0.15s;
+      transition: all 0.2s;
     }
     .tab-btn .tab-icon {
       font-size: 17px;
     }
+    /* ACTIVE TAB STYLE */
     .tab-btn.active {
-      color: #2563eb;
-      font-weight: 900;
-      background: #eff6ff;
+      color: #2563eb !important;
+      font-weight: 900 !important;
+      background: #eff6ff !important;
+      border-top: 3px solid #2563eb;
     }
 
     /* Popup */
@@ -619,20 +737,27 @@
       margin-bottom: 8px;
       line-height: 1.4;
     }
+    .popup-actions {
+      display: flex;
+      gap: 6px;
+    }
     .popup-btn {
+      flex: 1;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      width: 100%;
+      gap: 4px;
       background: #2563eb;
       color: #ffffff !important;
       text-decoration: none;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 800;
-      padding: 7px 10px;
+      padding: 7px 8px;
       border-radius: 5px;
       transition: background 0.2s;
+    }
+    .popup-btn.waze {
+      background: #0284c7;
     }
 
     /* RESPONSIVE BREAKPOINTS */
@@ -647,6 +772,9 @@
         height: 100%;
         display: none;
         border-left: none;
+      }
+      .tables-scroll-container {
+        padding-bottom: 70px;
       }
       .legend-card {
         display: none;
@@ -720,23 +848,26 @@
         <div id="map" dir="ltr"></div>
 
         <!-- Filter Chips Carousel -->
-                <!-- Filter Chips Carousel -->
         <div class="chips-carousel">
-          <button class="chip active" onclick="applyFilter('all')">הכל (11)</button>
-          <button class="chip day-chip" onclick="applyFilter('day:sunday')">ערב כיפור - יום א' (3)</button>
-          <button class="chip day-chip" onclick="applyFilter('day:monday')">יום כיפור - יום ב' (8)</button>
-          <button class="chip" onclick="applyFilter('cat:closure_security')">🚐 חסימות (1)</button>
-          <button class="chip" onclick="applyFilter('cat:noise_disorder')">📢 רעש והתקהלות (4)</button>
-          <button class="chip" onclick="applyFilter('cat:security_theft')">📹 מצלמות (2)</button>
-          <button class="chip" onclick="applyFilter('cat:fire_safety')">🔥 שריפה (1)</button>
-          <button class="chip" onclick="applyFilter('cat:traffic_motorcycle')">🏍️ אופנוע (1)</button>
-          <button class="chip" onclick="applyFilter('cat:animals')">🐴 סוס (1)</button>
-          <button class="chip" onclick="applyFilter('cat:vending')">🍔 רוכלות (1)</button>
+          <button class="chip active" data-filter="all" onclick="applyFilter(this, 'all')">הכל (11)</button>
+          <button class="chip day-chip" data-filter="day:sunday" onclick="applyFilter(this, 'day:sunday')">ערב כיפור - יום א' (3)</button>
+          <button class="chip day-chip" data-filter="day:monday" onclick="applyFilter(this, 'day:monday')">יום כיפור - יום ב' (8)</button>
+          <button class="chip" data-filter="cat:closure_security" onclick="applyFilter(this, 'cat:closure_security')">🚐 חסימות (1)</button>
+          <button class="chip" data-filter="cat:noise_disorder" onclick="applyFilter(this, 'cat:noise_disorder')">📢 רעש והתקהלות (4)</button>
+          <button class="chip" data-filter="cat:security_theft" onclick="applyFilter(this, 'cat:security_theft')">📹 מצלמות (2)</button>
+          <button class="chip" data-filter="cat:fire_safety" onclick="applyFilter(this, 'cat:fire_safety')">🔥 שריפה (1)</button>
+          <button class="chip" data-filter="cat:traffic_motorcycle" onclick="applyFilter(this, 'cat:traffic_motorcycle')">🏍️ אופנוע (1)</button>
+          <button class="chip" data-filter="cat:animals" onclick="applyFilter(this, 'cat:animals')">🐴 סוס (1)</button>
+          <button class="chip" data-filter="cat:vending" onclick="applyFilter(this, 'cat:vending')">🍔 רוכלות (1)</button>
         </div>
 
         <!-- Desktop Floating Legend -->
         <div class="legend-card" id="desktopLegend">
-          <h3>מקרא סמלים - אירועים</h3>
+          <h3>מקרא סמלים - יום הכיפורים</h3>
+          <div class="legend-line">
+            <span>רכב חסימה / סגירת ציר</span>
+            <div class="legend-icon" style="background:#e0e7ff; color:#4338ca; border:1px solid #6366f1;">🚐</div>
+          </div>
           <div class="legend-line">
             <span>אופנוע משתולל / נסיעות</span>
             <div class="legend-icon" style="background:#1e293b; color:#ffffff;">🏍️</div>
@@ -746,12 +877,8 @@
             <div class="legend-icon" style="background:#fee2e2; color:#dc2626; border:1px solid #ef4444;">📹</div>
           </div>
           <div class="legend-line">
-            <span>רכב חסימה / סגירת ציר</span>
-            <div class="legend-icon" style="background:#e0e7ff; color:#4338ca; border:1px solid #6366f1;">🚐</div>
-          </div>
-          <div class="legend-line">
             <span>רעש וצעקות / התקהלות</span>
-            <div class="legend-icon" style="background:#fef3c7; color:#d97706; border:1px solid #f59e0b;">📢</div>
+            <div class="legend-icon" style="background:#fef3c7; color:#b45309; border:1px solid #f59e0b;">📢</div>
           </div>
           <div class="legend-line">
             <span>סוס משוטט</span>
@@ -779,233 +906,20 @@
       <!-- Side Table Panel (Desktop / Mobile Tab) -->
       <aside class="sidebar-view" id="sidebarViewTab">
         <div class="sidebar-header">
-          <h2>📋 ריכוז אירועים ונקודות חמות</h2>
-          <p>לחיצה על שורה ממקדת את המפה ומציגה ניווט ב-Google Maps וב-Waze</p>
+          <div class="sidebar-header-top">
+            <h2>📋 אירועים – יום הכיפורים</h2>
+            <span class="visible-counter" id="visibleCounter">מציג 11 מתוך 11</span>
+          </div>
+          <p>לחיצה על שורה מדגישה אותה וממקדת את המפה עם ניווט מהיר</p>
           <div class="search-box">
-            <input type="text" id="searchInput" class="search-input" placeholder="🔍 חיפוש רחוב או אירוע (איילון, שלמה המלך, סוס)..." oninput="handleSearch(this.value)">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" class="search-input" placeholder="חיפוש רחוב, אירוע או שכונה (איילון, שלמה המלך, סוס, חסימה)..." oninput="handleSearch(this.value)">
+            <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
           </div>
         </div>
 
-        <div class="tables-scroll-container">
-
-          <!-- Category 1: אלימות ורעש -->
-          <div class="report-table-box" data-cat="noise_disorder">
-            <div class="table-cat-title">
-              <span>📢 אלימות, רעש והפרעות סדר</span>
-              <span class="cat-badge">4 אירועים</span>
-            </div>
-            <table class="custom-table">
-              <thead>
-                <tr>
-                  <th class="num-col">מס'</th>
-                  <th>מיקום ומהות האירוע</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr onclick="focusOnEvent(4)" style="cursor:pointer;">
-                  <td class="num-cell">1</td>
-                  <td>
-                    <div class="item-title"><span class="day-tag tag-mon">יום ב'</span> רח' אריה רובין (רמת אשכול)</div>
-                    <div class="item-subtitle">רעש וצעקות של נערות בשעות המנוחה</div>
-                    <div class="action-links">
-                      <a href="https://www.google.com/maps/search/?api=1&query=31.94825,34.89920" target="_blank" class="act-link" onclick="event.stopPropagation();">📍 Google Maps</a>
-                      <a href="https://waze.com/ul?ll=31.94825,34.89920&navigate=yes" target="_blank" class="act-link" onclick="event.stopPropagation();">🚗 Waze</a>
-                    </div>
-                  </td>
-                </tr>
-                <tr onclick="focusOnEvent(5)" style="cursor:pointer;">
-                  <td class="num-cell">2</td>
-                  <td>
-                    <div class="item-title"><span class="day-tag tag-mon">יום ב'</span> שדרות דוד המלך (מרכז / נווה זית)</div>
-                    <div class="item-subtitle">חבורת נערים מרעישים עם מערכות הגברה</div>
-                    <div class="action-links">
-                      <a href="https://www.google.com/maps/search/?api=1&query=31.94760,34.88550" target="_blank" class="act-link" onclick="event.stopPropagation();">📍 Google Maps</a>
-                      <a href="https://waze.com/ul?ll=31.94760,34.88550&navigate=yes" target="_blank" class="act-link" onclick="event.stopPropagation();">🚗 Waze</a>
-                    </div>
-                  </td>
-                </tr>
-                <tr onclick="focusOnEvent(8)" style="cursor:pointer;">
-                  <td class="num-cell">3</td>
-                  <td>
-                    <div class="item-title"><span class="day-tag tag-mon">יום ב'</span> שדרות שלמה המלך (צומת קרידו)</div>
-                    <div class="item-subtitle">התקהלות והקמת רעש במרחב הציבורי</div>
-                    <div class="action-links">
-                      <a href="https://www.google.com/maps/search/?api=1&query=31.95150,34.89050" target="_blank" class="act-link" onclick="event.stopPropagation();">📍 Google Maps</a>
-                      <a href="https://waze.com/ul?ll=31.95150,34.89050&navigate=yes" target="_blank" class="act-link" onclick="event.stopPropagation();">🚗 Waze</a>
-                    </div>
-                  </td>
-                </tr>
-                <tr onclick="focusOnEvent(10)" style="cursor:pointer;">
-                  <td class="num-cell">4</td>
-                  <td>
-                    <div class="item-title"><span class="day-tag tag-mon">יום ב'</span> שדרות שלמה המלך (פינת לבנה)</div>
-                    <div class="item-subtitle">התקהלות מרעישים לציבור וחסימת מדרכה</div>
-                    <div class="action-links">
-                      <a href="https://www.google.com/maps/search/?api=1&query=31.94800,34.88820" target="_blank" class="act-link" onclick="event.stopPropagation();">📍 Google Maps</a>
-                      <a href="https://waze.com/ul?ll=31.94800,34.88820&navigate=yes" target="_blank" class="act-link" onclick="event.stopPropagation();">🚗 Waze</a>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Category 2: מפגעי אש ובטיחות -->
-          <div class="report-table-box" data-cat="fire_safety">
-            <div class="table-cat-title">
-              <span>🔥 מפגעי אש, הצתה ובטיחות</span>
-              <span class="cat-badge">1 אירוע</span>
-            </div>
-            <table class="custom-table">
-              <thead>
-                <tr>
-                  <th class="num-col">מס'</th>
-                  <th>מיקום ומהות האירוע</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr onclick="focusOnEvent(9)" style="cursor:pointer;">
-                  <td class="num-cell">1</td>
-                  <td>
-                    <div class="item-title"><span class="day-tag tag-mon">יום ב'</span> רחוב איילון 11 (נווה זית)</div>
-                    <div class="item-subtitle">שריפת ספה במרחב הציבורי, עשן וסכנת התפשטות</div>
-                    <div class="action-links">
-                      <a href="https://www.google.com/maps/search/?api=1&query=31.94605,34.90484" target="_blank" class="act-link" onclick="event.stopPropagation();">📍 Google Maps</a>
-                      <a href="https://waze.com/ul?ll=31.94605,34.90484&navigate=yes" target="_blank" class="act-link" onclick="event.stopPropagation();">🚗 Waze</a>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Category 3: פגיעה ברכוש עירוני -->
-          <div class="report-table-box" data-cat="security_theft">
-            <div class="table-cat-title">
-              <span>📹 פגיעה ברכוש עירוני וביטחון</span>
-              <span class="cat-badge">2 אירועים</span>
-            </div>
-            <table class="custom-table">
-              <thead>
-                <tr>
-                  <th class="num-col">מס'</th>
-                  <th>מיקום ומהות האירוע</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr onclick="focusOnEvent(2)" style="cursor:pointer;">
-                  <td class="num-cell">1</td>
-                  <td>
-                    <div class="item-title"><span class="day-tag tag-sun">יום א'</span> רח' מאיר הר ציון (גני אביב)</div>
-                    <div class="item-subtitle">גניבת מצלמות עירוניות של המוקד הרואה</div>
-                    <div class="action-links">
-                      <a href="https://www.google.com/maps/search/?api=1&query=31.96440,34.87980" target="_blank" class="act-link" onclick="event.stopPropagation();">📍 Google Maps</a>
-                      <a href="https://waze.com/ul?ll=31.96440,34.87980&navigate=yes" target="_blank" class="act-link" onclick="event.stopPropagation();">🚗 Waze</a>
-                    </div>
-                  </td>
-                </tr>
-                <tr onclick="focusOnEvent(7)" style="cursor:pointer;">
-                  <td class="num-cell">2</td>
-                  <td>
-                    <div class="item-title"><span class="day-tag tag-mon">יום ב'</span> פארק גני אביב</div>
-                    <div class="item-subtitle">חשד לגניבת מצלמת עירייה ופגיעה בתשתית</div>
-                    <div class="action-links">
-                      <a href="https://www.google.com/maps/search/?api=1&query=31.96700,34.87870" target="_blank" class="act-link" onclick="event.stopPropagation();">📍 Google Maps</a>
-                      <a href="https://waze.com/ul?ll=31.96700,34.87870&navigate=yes" target="_blank" class="act-link" onclick="event.stopPropagation();">🚗 Waze</a>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Category 4: רכב / אופנוע משתולל -->
-          <div class="report-table-box" data-cat="traffic_motorcycle">
-            <div class="table-cat-title">
-              <span>🏍️ רכב / אופנוע משתולל</span>
-              <span class="cat-badge">1 אירוע</span>
-            </div>
-            <table class="custom-table">
-              <thead>
-                <tr>
-                  <th class="num-col">מס'</th>
-                  <th>מיקום ומהות האירוע</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr onclick="focusOnEvent(3)" style="cursor:pointer;">
-                  <td class="num-cell">1</td>
-                  <td>
-                    <div class="item-title"><span class="day-tag tag-sun">יום א'</span> רח' מאיר הר ציון (גני אביב)</div>
-                    <div class="item-subtitle">נסיעות אופנועים פרועות וסיכון הולכי רגל</div>
-                    <div class="action-links">
-                      <a href="https://www.google.com/maps/search/?api=1&query=31.96080,34.87600" target="_blank" class="act-link" onclick="event.stopPropagation();">📍 Google Maps</a>
-                      <a href="https://waze.com/ul?ll=31.96080,34.87600&navigate=yes" target="_blank" class="act-link" onclick="event.stopPropagation();">🚗 Waze</a>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Category 5: סוסים ובעלי חיים -->
-          <div class="report-table-box" data-cat="animals">
-            <div class="table-cat-title">
-              <span>🐴 סוסים ובעלי חיים משוטטים</span>
-              <span class="cat-badge">1 אירוע</span>
-            </div>
-            <table class="custom-table">
-              <thead>
-                <tr>
-                  <th class="num-col">מס'</th>
-                  <th>מיקום ומהות האירוע</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr onclick="focusOnEvent(6)" style="cursor:pointer;">
-                  <td class="num-cell">1</td>
-                  <td>
-                    <div class="item-title"><span class="day-tag tag-mon">יום ב'</span> רח' עשרת הרוגי מלכות (נווה אליעזר)</div>
-                    <div class="item-subtitle">סוס משוטט ללא השגחה ברחוב, סכנה לתנועה</div>
-                    <div class="action-links">
-                      <a href="https://www.google.com/maps/search/?api=1&query=31.96315,34.89407" target="_blank" class="act-link" onclick="event.stopPropagation();">📍 Google Maps</a>
-                      <a href="https://waze.com/ul?ll=31.96315,34.89407&navigate=yes" target="_blank" class="act-link" onclick="event.stopPropagation();">🚗 Waze</a>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Category 6: רוכלות ומסחר ללא היתר -->
-          <div class="report-table-box" data-cat="vending">
-            <div class="table-cat-title">
-              <span>🍔 רוכלות ומסחר ללא היתר</span>
-              <span class="cat-badge">1 אירוע</span>
-            </div>
-            <table class="custom-table">
-              <thead>
-                <tr>
-                  <th class="num-col">מס'</th>
-                  <th>מיקום ומהות האירוע</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr onclick="focusOnEvent(1)" style="cursor:pointer;">
-                  <td class="num-cell">1</td>
-                  <td>
-                    <div class="item-title"><span class="day-tag tag-sun">יום א'</span> שדרות מיכה רייסר (גני אביב)</div>
-                    <div class="item-subtitle">פתיחת דוכן מזון פיראטי ללא רישיון עסק</div>
-                    <div class="action-links">
-                      <a href="https://www.google.com/maps/search/?api=1&query=31.95724,34.88809" target="_blank" class="act-link" onclick="event.stopPropagation();">📍 Google Maps</a>
-                      <a href="https://waze.com/ul?ll=31.95724,34.88809&navigate=yes" target="_blank" class="act-link" onclick="event.stopPropagation();">🚗 Waze</a>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
+        <div class="tables-scroll-container" id="tablesContainer">
+          <!-- Dynamically populated or grouped categories -->
         </div>
       </aside>
 
@@ -1050,6 +964,12 @@
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
+    // Close drawer on map click
+    map.on('click', function() {
+      closeDrawer();
+      clearActiveRow();
+    });
+
     // Satellite Imagery Layer
     var satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 19
@@ -1078,14 +998,16 @@
     fitLodBounds();
 
     // Events dataset
-    var eventsData = [{"id": 1, "day": "ערב יום כיפור (יום א')", "day_code": "sunday", "category": "vending", "category_title": "רוכלות ומסחר ללא היתר", "street": "שדרות מיכה רייסר", "area": "גני אביב (כניסה דרומית / ציר סוקולוב)", "event": "פתיחת דוכן מזון", "icon": "🍔", "badge_color": "#d97706", "badge_bg": "#fffbeb", "lat": 31.95724, "lng": 34.88809, "notes": "פתיחת דוכן מזון פיראטי ללא היתר בערב החג, הפרעה למעבר הולכי רגל", "action": "התראה לפינוי מיידי ע\"י הפיקוח והשיטור העירוני", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.95724,34.88809", "waze_url": "https://waze.com/ul?ll=31.95724,34.88809&navigate=yes"}, {"id": 2, "day": "ערב יום כיפור (יום א')", "day_code": "sunday", "category": "security_theft", "category_title": "פגיעה ברכוש עירוני וביטחון", "street": "רחוב מאיר הר ציון", "area": "גני אביב החדשה (צפון)", "event": "גניבת מצלמות עירונית", "icon": "📹", "badge_color": "#dc2626", "badge_bg": "#fef2f2", "lat": 31.9644, "lng": 34.8798, "notes": "חבלה וגניבת מצלמת אבטחה של המוקד הרואה בסמוך לכניסת כיפור", "action": "תלונה במשטרה + תגבור סיורי ביטחון בציר", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.96440,34.87980", "waze_url": "https://waze.com/ul?ll=31.96440,34.87980&navigate=yes"}, {"id": 3, "day": "ערב יום כיפור (יום א')", "day_code": "sunday", "category": "traffic_motorcycle", "category_title": "רכב / אופנוע משתולל בערב כיפור", "street": "רחוב מאיר הר ציון", "area": "גני אביב החדשה (דרום-מערב)", "event": "נסיעות אופנועים", "icon": "🏍️", "badge_color": "#1e293b", "badge_bg": "#f8fafc", "lat": 31.9608, "lng": 34.876, "notes": "רכיבת אופנועים פראית ומהירה בכבישי השכונה עם כניסת החג, סיכון מתפללים והולכי רגל", "action": "מבצע אכיפה ונוכחות ניידות שיטור עירוני", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.96080,34.87600", "waze_url": "https://waze.com/ul?ll=31.96080,34.87600&navigate=yes"}, {"id": 4, "day": "יום כיפור (יום ב')", "day_code": "monday", "category": "noise_disorder", "category_title": "אלימות, רעש והפרעות סדר", "street": "רחוב אריה רובין", "area": "רמת אשכול", "event": "רעש וצעקות של נערות", "icon": "📢", "badge_color": "#b45309", "badge_bg": "#fffbeb", "lat": 31.94825, "lng": 34.8992, "notes": "צעקות והקמת רעש חריג בשעות המנוחה ע\"י קבוצת נערות", "action": "צוות שיטור עירוני פיזר את ההתקהלות", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.94825,34.89920", "waze_url": "https://waze.com/ul?ll=31.94825,34.89920&navigate=yes"}, {"id": 5, "day": "יום כיפור (יום ב')", "day_code": "monday", "category": "noise_disorder", "category_title": "אלימות, רעש והפרעות סדר", "street": "שדרות דוד המלך", "area": "מרכז העיר / גבעת הזיתים", "event": "חבורת נערים מרעישים", "icon": "📢", "badge_color": "#b45309", "badge_bg": "#fffbeb", "lat": 31.9476, "lng": 34.8855, "notes": "התקהלות חבורת נוער עם רמקולים מוגברים בלב הציר ביום כיפור", "action": "אזהרה ופיזור ע\"י ניידת ביטחון עירוני", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.94760,34.88550", "waze_url": "https://waze.com/ul?ll=31.94760,34.88550&navigate=yes"}, {"id": 6, "day": "יום כיפור (יום ב')", "day_code": "monday", "category": "animals", "category_title": "סוסים ובעלי חיים משוטטים", "street": "רח' עשרת הרוגי מלכות", "area": "נווה אליעזר / צפון-מזרח העיר", "event": "סוס משוטט", "icon": "🐴", "badge_color": "#854d0e", "badge_bg": "#fefce8", "lat": 31.96315, "lng": 34.89407, "notes": "סוס משוטט ללא השגחה ברחוב במהלך החג, סכנה חמורה לילדים על אופניים", "action": "הוזעק השירות הווטרינרי העירוני ללכידה והעברה להסגר", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.96315,34.89407", "waze_url": "https://waze.com/ul?ll=31.96315,34.89407&navigate=yes"}, {"id": 7, "day": "יום כיפור (יום ב')", "day_code": "monday", "category": "security_theft", "category_title": "פגיעה ברכוש עירוני וביטחון", "street": "פארק גני אביב", "area": "גני אביב צפון", "event": "חשד לגניבת מצלמת עירייה", "icon": "📹", "badge_color": "#dc2626", "badge_bg": "#fef2f2", "lat": 31.967, "lng": 34.8787, "notes": "ניתוק אות וחשד לחבלה במצלמת אבטחה בפארק במהלך הצום", "action": "הקפצת סייר שטח לבדיקה טכנית והגשת תלונה", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.96700,34.87870", "waze_url": "https://waze.com/ul?ll=31.96700,34.87870&navigate=yes"}, {"id": 8, "day": "יום כיפור (יום ב')", "day_code": "monday", "category": "noise_disorder", "category_title": "אלימות, רעש והפרעות סדר", "street": "שדרות שלמה המלך (צפון)", "area": "צומת קרידו / מרכז העיר", "event": "התקהלות והקמת רעש", "icon": "📢", "badge_color": "#b45309", "badge_bg": "#fffbeb", "lat": 31.9515, "lng": 34.8905, "notes": "התקהלות קבוצת צעירים עם מוזיקה חזקה במרחב הציבורי בצום כיפור", "action": "הגעה למקום ע\"י סיור עירוני והשבת השקט", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.95150,34.89050", "waze_url": "https://waze.com/ul?ll=31.95150,34.89050&navigate=yes"}, {"id": 9, "day": "יום כיפור (יום ב')", "day_code": "monday", "category": "fire_safety", "category_title": "מפגעי אש, הצתה ובטיחות", "street": "רחוב איילון 11", "area": "נווה זית / אזור המזרח", "event": "שריפת ספה", "icon": "🔥", "badge_color": "#ea580c", "badge_bg": "#fff7ed", "lat": 31.94605, "lng": 34.90484, "notes": "הצתת ספה במרחב הציבורי ביום כיפור, עשן כבד וסכנת התפשטות", "action": "הוזעקו כוחות כיבוי אש וניידת ביטחון לכיבוי ובידוד הזירה", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.94605,34.90484", "waze_url": "https://waze.com/ul?ll=31.94605,34.90484&navigate=yes"}, {"id": 10, "day": "יום כיפור (יום ב')", "day_code": "monday", "category": "noise_disorder", "category_title": "אלימות, רעש והפרעות סדר", "street": "שדרות שלמה המלך (דרום)", "area": "פינת לבנה / מרכז העיר", "event": "התקהלות מרעישים לציבור", "icon": "📢", "badge_color": "#b45309", "badge_bg": "#fffbeb", "lat": 31.948, "lng": 34.8882, "notes": "התקהלות מרעישים לציבור וחסימת מדרכה וציר תנועה של הולכי רגל", "action": "פיזור ע\"י כוח שיטור עירוני ואזהרות למארגנים", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.94800,34.88820", "waze_url": "https://waze.com/ul?ll=31.94800,34.88820&navigate=yes"}, {"id": 11, "day": "יום כיפור (יום ב')", "day_code": "monday", "category": "closure_security", "category_title": "מערך חסימות וביטחון יום כיפור", "street": "שכונת נאות יצחק", "area": "דרום העיר / ציר המצביאים", "event": "עזיבת מיניבוס חסימה (17:00)", "icon": "🚐", "badge_color": "#4338ca", "badge_bg": "#e0e7ff", "lat": 31.9425, "lng": 34.8785, "notes": "מיניבוס חסימה יצא ועזב את עמדת הסגירה בשעה 17:00 בטרם צאת יום הכיפורים. פתיחה מוקדמת ולא מאושרת של ציר הכניסה לשכונה", "action": "התראה מיידית לקצין מבצעים ומוקד רואה להחזרת רכב חסימה עד לצאת החג", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.94250,34.87850", "waze_url": "https://waze.com/ul?ll=31.94250,34.87850&navigate=yes"}];
+    var eventsData = [{"id": 1, "day": "ערב יום כיפור (יום א')", "day_code": "sunday", "day_badge": "ערב כיפור", "category": "vending", "category_title": "רוכלות ומסחר ללא היתר", "category_icon": "🍔", "street": "שדרות מיכה רייסר", "area": "גני אביב (כניסה דרומית / ציר סוקולוב)", "event": "פתיחת דוכן מזון", "icon": "🍔", "badge_color": "#d97706", "badge_bg": "#fffbeb", "lat": 31.95724, "lng": 34.88809, "notes": "פתיחת דוכן מזון פיראטי ללא היתר בערב החג, הפרעה למעבר הולכי רגל", "action": "התראה לפינוי מיידי ע\"י הפיקוח והשיטור העירוני", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.95724,34.88809", "waze_url": "https://waze.com/ul?ll=31.95724,34.88809&navigate=yes"}, {"id": 2, "day": "ערב יום כיפור (יום א')", "day_code": "sunday", "day_badge": "ערב כיפור", "category": "security_theft", "category_title": "פגיעה ברכוש עירוני וביטחון", "category_icon": "📹", "street": "רחוב מאיר הר ציון", "area": "גני אביב החדשה (צפון)", "event": "גניבת מצלמות עירונית", "icon": "📹", "badge_color": "#dc2626", "badge_bg": "#fef2f2", "lat": 31.9644, "lng": 34.8798, "notes": "חבלה וגניבת מצלמת אבטחה של המוקד הרואה בסמוך לכניסת כיפור", "action": "תלונה במשטרה + תגבור סיורי ביטחון בציר", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.96440,34.87980", "waze_url": "https://waze.com/ul?ll=31.96440,34.87980&navigate=yes"}, {"id": 3, "day": "ערב יום כיפור (יום א')", "day_code": "sunday", "day_badge": "ערב כיפור", "category": "traffic_motorcycle", "category_title": "רכב / אופנוע משתולל בערב כיפור", "category_icon": "🏍️", "street": "רחוב מאיר הר ציון", "area": "גני אביב החדשה (דרום-מערב)", "event": "נסיעות אופנועים", "icon": "🏍️", "badge_color": "#1e293b", "badge_bg": "#f8fafc", "lat": 31.9608, "lng": 34.876, "notes": "רכיבת אופנועים פראית ומהירה בכבישי השכונה עם כניסת החג, סיכון מתפללים והולכי רגל", "action": "מבצע אכיפה ונוכחות ניידות שיטור עירוני", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.96080,34.87600", "waze_url": "https://waze.com/ul?ll=31.96080,34.87600&navigate=yes"}, {"id": 4, "day": "יום כיפור (יום ב')", "day_code": "monday", "day_badge": "יום כיפור", "category": "closure_security", "category_title": "מערך חסימות וביטחון יום כיפור", "category_icon": "🚐", "street": "שכונת נאות יצחק", "area": "דרום העיר / ציר המצביאים", "event": "עזיבת מיניבוס חסימה (17:00)", "icon": "🚐", "badge_color": "#4338ca", "badge_bg": "#e0e7ff", "lat": 31.9425, "lng": 34.8785, "notes": "מיניבוס חסימה יצא ועזב את עמדת הסגירה בשעה 17:00 בטרם צאת יום הכיפורים. פתיחה מוקדמת ולא מאושרת של ציר הכניסה לשכונה", "action": "התראה מיידית לקצין מבצעים ומוקד רואה להחזרת רכב חסימה עד לצאת החג", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.94250,34.87850", "waze_url": "https://waze.com/ul?ll=31.94250,34.87850&navigate=yes"}, {"id": 5, "day": "יום כיפור (יום ב')", "day_code": "monday", "day_badge": "יום כיפור", "category": "noise_disorder", "category_title": "אלימות, רעש והפרעות סדר", "category_icon": "📢", "street": "רחוב אריה רובין", "area": "רמת אשכול", "event": "רעש וצעקות של נערות", "icon": "📢", "badge_color": "#b45309", "badge_bg": "#fffbeb", "lat": 31.94825, "lng": 34.8992, "notes": "צעקות והקמת רעש חריג בשעות המנוחה ע\"י קבוצת נערות", "action": "צוות שיטור עירוני פיזר את ההתקהלות", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.94825,34.89920", "waze_url": "https://waze.com/ul?ll=31.94825,34.89920&navigate=yes"}, {"id": 6, "day": "יום כיפור (יום ב')", "day_code": "monday", "day_badge": "יום כיפור", "category": "noise_disorder", "category_title": "אלימות, רעש והפרעות סדר", "category_icon": "📢", "street": "שדרות דוד המלך", "area": "מרכז העיר / גבעת הזיתים", "event": "חבורת נערים מרעישים", "icon": "📢", "badge_color": "#b45309", "badge_bg": "#fffbeb", "lat": 31.9476, "lng": 34.8855, "notes": "התקהלות חבורת נוער עם רמקולים מוגברים בלב הציר ביום כיפור", "action": "אזהרה ופיזור ע\"י ניידת ביטחון עירוני", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.94760,34.88550", "waze_url": "https://waze.com/ul?ll=31.94760,34.88550&navigate=yes"}, {"id": 7, "day": "יום כיפור (יום ב')", "day_code": "monday", "day_badge": "יום כיפור", "category": "animals", "category_title": "סוסים ובעלי חיים משוטטים", "category_icon": "🐴", "street": "רח' עשרת הרוגי מלכות", "area": "נווה אליעזר / צפון-מזרח העיר", "event": "סוס משוטט", "icon": "🐴", "badge_color": "#854d0e", "badge_bg": "#fefce8", "lat": 31.96315, "lng": 34.89407, "notes": "סוס משוטט ללא השגחה ברחוב במהלך החג, סכנה חמורה לילדים על אופניים", "action": "הוזעק השירות הווטרינרי העירוני ללכידה והעברה להסגר", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.96315,34.89407", "waze_url": "https://waze.com/ul?ll=31.96315,34.89407&navigate=yes"}, {"id": 8, "day": "יום כיפור (יום ב')", "day_code": "monday", "day_badge": "יום כיפור", "category": "security_theft", "category_title": "פגיעה ברכוש עירוני וביטחון", "category_icon": "📹", "street": "פארק גני אביב", "area": "גני אביב צפון", "event": "חשד לגניבת מצלמת עירייה", "icon": "📹", "badge_color": "#dc2626", "badge_bg": "#fef2f2", "lat": 31.967, "lng": 34.8787, "notes": "ניתוק אות וחשד לחבלה במצלמת אבטחה בפארק במהלך הצום", "action": "הקפצת סייר שטח לבדיקה טכנית והגשת תלונה", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.96700,34.87870", "waze_url": "https://waze.com/ul?ll=31.96700,34.87870&navigate=yes"}, {"id": 9, "day": "יום כיפור (יום ב')", "day_code": "monday", "day_badge": "יום כיפור", "category": "noise_disorder", "category_title": "אלימות, רעש והפרעות סדר", "category_icon": "📢", "street": "שדרות שלמה המלך (צפון)", "area": "צומת קרידו / מרכז העיר", "event": "התקהלות והקמת רעש", "icon": "📢", "badge_color": "#b45309", "badge_bg": "#fffbeb", "lat": 31.9515, "lng": 34.8905, "notes": "התקהלות קבוצת צעירים עם מוזיקה חזקה במרחב הציבורי בצום כיפור", "action": "הגעה למקום ע\"י סיור עירוני והשבת השקט", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.95150,34.89050", "waze_url": "https://waze.com/ul?ll=31.95150,34.89050&navigate=yes"}, {"id": 10, "day": "יום כיפור (יום ב')", "day_code": "monday", "day_badge": "יום כיפור", "category": "fire_safety", "category_title": "מפגעי אש, הצתה ובטיחות", "category_icon": "🔥", "street": "רחוב איילון 11", "area": "נווה זית / אזור המזרח", "event": "שריפת ספה", "icon": "🔥", "badge_color": "#ea580c", "badge_bg": "#fff7ed", "lat": 31.94605, "lng": 34.90484, "notes": "הצתת ספה במרחב הציבורי ביום כיפור, עשן כבד וסכנת התפשטות", "action": "הוזעקו כוחות כיבוי אש וניידת ביטחון לכיבוי ובידוד הזירה", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.94605,34.90484", "waze_url": "https://waze.com/ul?ll=31.94605,34.90484&navigate=yes"}, {"id": 11, "day": "יום כיפור (יום ב')", "day_code": "monday", "day_badge": "יום כיפור", "category": "noise_disorder", "category_title": "אלימות, רעש והפרעות סדר", "category_icon": "📢", "street": "שדרות שלמה המלך (דרום)", "area": "פינת לבנה / מרכז העיר", "event": "התקהלות מרעישים לציבור", "icon": "📢", "badge_color": "#b45309", "badge_bg": "#fffbeb", "lat": 31.948, "lng": 34.8882, "notes": "התקהלות מרעישים לציבור וחסימת מדרכה וציר תנועה של הולכי רגל", "action": "פיזור ע\"י כוח שיטור עירוני ואזהרות למארגנים", "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.94800,34.88820", "waze_url": "https://waze.com/ul?ll=31.94800,34.88820&navigate=yes"}];
     var markerInstances = {};
+    var currentFilter = 'all';
+    var currentSearch = '';
+    var activeEventId = null;
 
     // Render Markers
     eventsData.forEach(function(ev) {
-      var dayTagClass = ev.day_code === 'sunday' ? 'tag-sun' : (ev.day_code === 'kippur' ? 'tag-kip' : 'tag-mon');
-      var dayLabel = ev.day_code === 'sunday' ? "ערב כיפור" : "יום כיפור";
-      
+      var dayTagClass = ev.day_code === 'sunday' ? 'tag-sun' : 'tag-mon';
+      var dayLabel = ev.day_badge;
 
       var iconHtml = `
         <div class="custom-incident-pin" id="pin-ev-${ev.id}">
@@ -1107,8 +1029,8 @@
       var customIcon = L.divIcon({
         html: iconHtml,
         className: 'leaflet-incident-div-icon',
-        iconSize: isMobile ? [36, 36] : [180, 44],
-        iconAnchor: isMobile ? [18, 18] : [90, 22],
+        iconSize: isMobile ? [36, 36] : [185, 44],
+        iconAnchor: isMobile ? [18, 18] : [92, 22],
         popupAnchor: [0, -22]
       });
 
@@ -1124,38 +1046,149 @@
             <strong>פירוט האירוע:</strong> ${ev.notes}<br>
             <strong>סטטוס טיפול:</strong> ${ev.action}
           </div>
-          <a href="${ev.gmaps_url}" target="_blank" class="popup-btn">
-            📍 ניווט ישיר ב-Google Maps &larr;
-          </a>
+          <div class="popup-actions">
+            <a href="${ev.gmaps_url}" target="_blank" class="popup-btn">
+              📍 ניווט ב-Google Maps
+            </a>
+            <a href="${ev.waze_url}" target="_blank" class="popup-btn waze">
+              🚗 ניווט ב-Waze
+            </a>
+          </div>
         </div>
       `;
 
       var marker = L.marker([ev.lat, ev.lng], { icon: customIcon }).addTo(map);
 
-      marker.on('click', function() {
-        if (window.innerWidth <= 992) {
-          openMobileDrawer(ev);
-        } else {
-          marker.bindPopup(popupHtml).openPopup();
-        }
+      // On Marker Click -> Select event with two-way active highlighting!
+      marker.on('click', function(e) {
+        L.DomEvent.stopPropagation(e);
+        selectEvent(ev.id, 'map');
       });
 
+      marker.bindPopup(popupHtml);
       markerInstances[ev.id] = marker;
     });
 
-    function focusOnEvent(id) {
+    // Build Categorized Tables in Sidebar
+    function buildSidebarTables() {
+      var container = document.getElementById('tablesContainer');
+      container.innerHTML = '';
+
+      // Group events by category
+      var categoriesMap = {};
+      eventsData.forEach(function(ev) {
+        if (!categoriesMap[ev.category]) {
+          categoriesMap[ev.category] = {
+            key: ev.category,
+            title: ev.category_title,
+            icon: ev.category_icon || ev.icon,
+            items: []
+          };
+        }
+        categoriesMap[ev.category].items.push(ev);
+      });
+
+      Object.values(categoriesMap).forEach(function(catGroup) {
+        var box = document.createElement('div');
+        box.className = 'report-table-box';
+        box.id = 'cat-box-' + catGroup.key;
+        box.setAttribute('data-cat', catGroup.key);
+
+        var rowsHtml = catGroup.items.map(function(ev, idx) {
+          var dayTagClass = ev.day_code === 'sunday' ? 'tag-sun' : 'tag-mon';
+          return `
+            <tr id="row-ev-${ev.id}" data-id="${ev.id}" data-day="${ev.day_code}" data-cat="${ev.category}" onclick="selectEvent(${ev.id}, 'table')">
+              <td class="num-cell">${idx + 1}</td>
+              <td>
+                <div class="item-title">
+                  <span class="day-tag ${dayTagClass}">${ev.day_badge}</span>
+                  <span>${ev.street}</span>
+                  <span style="color:#64748b; font-weight:600; font-size:11px;">(${ev.area})</span>
+                </div>
+                <div class="item-subtitle">${ev.notes}</div>
+                <div class="action-links">
+                  <a href="${ev.gmaps_url}" target="_blank" class="act-link" onclick="event.stopPropagation();">📍 Google Maps</a>
+                  <a href="${ev.waze_url}" target="_blank" class="act-link" onclick="event.stopPropagation();">🚗 Waze</a>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        box.innerHTML = `
+          <div class="table-cat-title">
+            <span>${catGroup.icon} ${catGroup.title}</span>
+            <span class="cat-badge" id="cat-badge-${catGroup.key}">${catGroup.items.length} אירועים</span>
+          </div>
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th class="num-col">מס'</th>
+                <th>מיקום ומהות האירוע</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        `;
+        container.appendChild(box);
+      });
+    }
+
+    buildSidebarTables();
+
+    // Two-Way Interactive Event Selection (Row click <-> Marker click)
+    function selectEvent(id, source) {
+      activeEventId = id;
       var ev = eventsData.find(e => e.id === id);
       var m = markerInstances[id];
-      if (m && ev) {
-        if (window.innerWidth <= 992) {
-          switchTab('map');
-          map.setView(m.getLatLng(), 16, { animate: true });
-          openMobileDrawer(ev);
-        } else {
-          map.setView(m.getLatLng(), 16, { animate: true });
-          m.openPopup();
+      if (!ev || !m) return;
+
+      // 1. Highlight Row in Table
+      document.querySelectorAll('.custom-table tbody tr').forEach(function(r) {
+        r.classList.remove('active-row');
+      });
+      var targetRow = document.getElementById('row-ev-' + id);
+      if (targetRow) {
+        targetRow.classList.add('active-row');
+        // If triggered from map click, scroll table smoothly to row
+        if (source === 'map') {
+          targetRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
       }
+
+      // 2. Highlight Pin on Map
+      document.querySelectorAll('.leaflet-incident-div-icon').forEach(function(p) {
+        p.classList.remove('selected-pin');
+      });
+      var pinElem = m.getElement();
+      if (pinElem) {
+        pinElem.classList.add('selected-pin');
+      }
+
+      // 3. Focus Map
+      map.setView(m.getLatLng(), 16, { animate: true });
+
+      // 4. Open Popup or Mobile Drawer
+      if (window.innerWidth <= 992) {
+        openMobileDrawer(ev);
+        if (source === 'table') {
+          switchTab('map');
+        }
+      } else {
+        m.openPopup();
+      }
+    }
+
+    function clearActiveRow() {
+      activeEventId = null;
+      document.querySelectorAll('.custom-table tbody tr').forEach(function(r) {
+        r.classList.remove('active-row');
+      });
+      document.querySelectorAll('.leaflet-incident-div-icon').forEach(function(p) {
+        p.classList.remove('selected-pin');
+      });
     }
 
     function openMobileDrawer(ev) {
@@ -1172,44 +1205,111 @@
       document.getElementById('mobileDrawer').style.display = 'none';
     }
 
-    function applyFilter(filterKey) {
+    // Filter Chips: updates BOTH Map and Sidebar with active highlight!
+    function applyFilter(btn, filterKey) {
+      currentFilter = filterKey;
+
+      // Update chip active classes
       document.querySelectorAll('.chip').forEach(function(b) {
         b.classList.remove('active');
       });
-      if (event && event.target) {
-        event.target.classList.add('active');
+      if (btn) {
+        btn.classList.add('active');
+      } else {
+        var match = document.querySelector(`.chip[data-filter="${filterKey}"]`);
+        if (match) match.classList.add('active');
       }
+
+      updateVisibility();
+    }
+
+    // Search input: updates BOTH Map and Sidebar in real-time
+    function handleSearch(query) {
+      currentSearch = query.trim().toLowerCase();
+      var clearBtn = document.getElementById('searchClear');
+      if (clearBtn) {
+        clearBtn.style.display = currentSearch ? 'flex' : 'none';
+      }
+      updateVisibility();
+    }
+
+    function clearSearch() {
+      var input = document.getElementById('searchInput');
+      if (input) input.value = '';
+      handleSearch('');
+    }
+
+    // Core Visibility & Synchronization Engine
+    function updateVisibility() {
+      var visibleMarkers = [];
+      var visibleCount = 0;
 
       eventsData.forEach(function(ev) {
         var m = markerInstances[ev.id];
-        var show = false;
-        if (filterKey === 'all') {
-          show = true;
-        } else if (filterKey.startsWith('day:')) {
-          var d = filterKey.split(':')[1];
-          show = (ev.day_code === d);
-        } else if (filterKey.startsWith('cat:')) {
-          var c = filterKey.split(':')[1];
-          show = (ev.category === c);
+        var matchFilter = false;
+
+        if (currentFilter === 'all') {
+          matchFilter = true;
+        } else if (currentFilter.startsWith('day:')) {
+          var d = currentFilter.split(':')[1];
+          matchFilter = (ev.day_code === d);
+        } else if (currentFilter.startsWith('cat:')) {
+          var c = currentFilter.split(':')[1];
+          matchFilter = (ev.category === c);
         }
 
+        var matchSearch = true;
+        if (currentSearch) {
+          var haystack = (ev.street + " " + ev.area + " " + ev.event + " " + ev.notes + " " + ev.day).toLowerCase();
+          matchSearch = haystack.includes(currentSearch);
+        }
+
+        var show = matchFilter && matchSearch;
+
+        // 1. Update Map Marker
         if (show) {
           if (!map.hasLayer(m)) map.addLayer(m);
+          visibleMarkers.push(m);
+          visibleCount++;
         } else {
           if (map.hasLayer(m)) map.removeLayer(m);
         }
+
+        // 2. Update Table Row
+        var row = document.getElementById('row-ev-' + ev.id);
+        if (row) {
+          row.style.display = show ? '' : 'none';
+        }
       });
+
+      // 3. Update Category Boxes in Sidebar
+      document.querySelectorAll('.report-table-box').forEach(function(box) {
+        var rows = box.querySelectorAll('tbody tr');
+        var visRows = Array.from(rows).filter(r => r.style.display !== 'none');
+        box.style.display = visRows.length > 0 ? '' : 'none';
+        var catKey = box.getAttribute('data-cat');
+        var badge = document.getElementById('cat-badge-' + catKey);
+        if (badge) {
+          badge.innerText = visRows.length + ' אירועים';
+        }
+      });
+
+      // 4. Update Counter Header
+      var counter = document.getElementById('visibleCounter');
+      if (counter) {
+        counter.innerText = `מציג ${visibleCount} מתוך ${eventsData.length}`;
+      }
+
+      // 5. Smart Map Framing
+      if (visibleMarkers.length > 0 && currentFilter !== 'all') {
+        var group = L.featureGroup(visibleMarkers);
+        map.fitBounds(group.getBounds(), { padding: [60, 60], maxZoom: 15 });
+      } else if (currentFilter === 'all' && !currentSearch) {
+        fitLodBounds();
+      }
     }
 
-    function handleSearch(query) {
-      var q = query.trim().toLowerCase();
-      var rows = document.querySelectorAll('.custom-table tbody tr');
-      rows.forEach(function(row) {
-        var text = row.innerText.toLowerCase();
-        row.style.display = text.includes(q) ? '' : 'none';
-      });
-    }
-
+    // Mobile Tab Bar Switcher
     function switchTab(tab) {
       var mapEl = document.getElementById('mapViewTab');
       var sideEl = document.getElementById('sidebarViewTab');
@@ -1242,7 +1342,7 @@
     }
 
     function shareSummaryWhatsApp() {
-            var text = `📢 *סיכום נקודות חמות - עיריית לוד | מבצע יום הכיפורים* (ראשון ושני):\n` +
+      var text = `📢 *סיכום נקודות חמות - עיריית לוד | מבצע יום הכיפורים* (ראשון ושני):\n` +
         `*ערב יום כיפור (יום א'):*\n` +
         `• שד' מיכה רייסר: פתיחת דוכן מזון פיראטי\n` +
         `• רח' מאיר הר ציון: גניבת מצלמת מוקד רואה + נסיעות אופנועים\n\n` +
