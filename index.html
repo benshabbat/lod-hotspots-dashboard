@@ -25,10 +25,14 @@
         <div class="city-logo">עיריית לוד</div>
         <div class="header-titles">
           <h1>מפת נקודות חמות ואירועים חריגים</h1>
-          <p>מוקד רואה וביטחון עירוני | סיכום מבצע יום הכיפורים (ערב ומהלך החג)</p>
+          <p id="headerSubtitle">מוקד רואה וביטחון עירוני | סיכום מבצע יום הכיפורים 2026 (ערב ומהלך החג)</p>
         </div>
       </div>
       <div class="header-left">
+        <div class="year-switcher" role="group" aria-label="בחירת שנת הדוח">
+          <button class="year-btn active" id="yearBtn2026" onclick="switchYear('2026')" aria-pressed="true">2026</button>
+          <button class="year-btn" id="yearBtn2025" onclick="switchYear('2025')" aria-pressed="false">2025</button>
+        </div>
         <button class="btn-header desktop-only" onclick="fitLodBounds()">📍 מרכוז לוד</button>
         <button class="btn-header desktop-only" onclick="window.print()">🖨️ הדפסה</button>
         <button class="btn-header btn-whatsapp" onclick="shareSummaryWhatsApp()">💬 שיתוף</button>
@@ -43,54 +47,12 @@
         <div id="map" dir="ltr"></div>
 
         <!-- Filter Chips Carousel -->
-        <div class="chips-carousel">
-          <button class="chip active" data-filter="all" onclick="applyFilter(this, 'all')">הכל (11)</button>
-          <button class="chip day-chip" data-filter="day:sunday" onclick="applyFilter(this, 'day:sunday')">ערב כיפור - יום א' (3)</button>
-          <button class="chip day-chip" data-filter="day:monday" onclick="applyFilter(this, 'day:monday')">יום כיפור - יום ב' (8)</button>
-          <button class="chip" data-filter="cat:closure_security" onclick="applyFilter(this, 'cat:closure_security')">🚐 חסימות (1)</button>
-          <button class="chip" data-filter="cat:noise_disorder" onclick="applyFilter(this, 'cat:noise_disorder')">📢 רעש והתקהלות (4)</button>
-          <button class="chip" data-filter="cat:security_theft" onclick="applyFilter(this, 'cat:security_theft')">📹 מצלמות (2)</button>
-          <button class="chip" data-filter="cat:fire_safety" onclick="applyFilter(this, 'cat:fire_safety')">🔥 שריפה (1)</button>
-          <button class="chip" data-filter="cat:traffic_motorcycle" onclick="applyFilter(this, 'cat:traffic_motorcycle')">🏍️ אופנוע (1)</button>
-          <button class="chip" data-filter="cat:animals" onclick="applyFilter(this, 'cat:animals')">🐴 סוס (1)</button>
-          <button class="chip" data-filter="cat:vending" onclick="applyFilter(this, 'cat:vending')">🍔 רוכלות (1)</button>
-        </div>
+        <div class="chips-carousel" id="filterChips"></div>
 
         <!-- Desktop Floating Legend -->
         <div class="legend-card" id="desktopLegend">
-          <h3>מקרא סמלים - יום הכיפורים</h3>
-          <div class="legend-line">
-            <span>רכב חסימה / סגירת ציר</span>
-            <div class="legend-icon" style="background:#e0e7ff; color:#4338ca; border:1px solid #6366f1;">🚐</div>
-          </div>
-          <div class="legend-line">
-            <span>אופנוע משתולל / נסיעות</span>
-            <div class="legend-icon" style="background:#1e293b; color:#ffffff;">🏍️</div>
-          </div>
-          <div class="legend-line">
-            <span>גניבת מצלמות עירונית</span>
-            <div class="legend-icon" style="background:#fee2e2; color:#dc2626; border:1px solid #ef4444;">📹</div>
-          </div>
-          <div class="legend-line">
-            <span>רעש וצעקות / התקהלות</span>
-            <div class="legend-icon" style="background:#fef3c7; color:#b45309; border:1px solid #f59e0b;">📢</div>
-          </div>
-          <div class="legend-line">
-            <span>סוס משוטט</span>
-            <div class="legend-icon" style="background:#fefce8; color:#854d0e; border:1px solid #ca8a04;">🐴</div>
-          </div>
-          <div class="legend-line">
-            <span>שריפה / הצתה</span>
-            <div class="legend-icon" style="background:#fff7ed; color:#ea580c; border:1px solid #f97316;">🔥</div>
-          </div>
-          <div class="legend-line">
-            <span>פתיחת דוכן מזון (רוכלות)</span>
-            <div class="legend-icon" style="background:#fffbeb; color:#b45309; border:1px solid #d97706;">🍔</div>
-          </div>
-          <div class="legend-line">
-            <span>נקודה חמה מבצעית</span>
-            <div style="background:#ef4444; border-radius:50%; width:16px; height:16px; box-shadow:0 0 8px #ef4444;"></div>
-          </div>
+          <h3 id="legendTitle">מקרא סמלים - 2026</h3>
+          <div id="legendItems"></div>
           <div class="legend-line" style="margin-top:4px; padding-top:4px; border-top:1px dashed #cbd5e1;">
             <span>גבול שיפוט העיר לוד</span>
             <div style="width:26px; height:4px; background:#0084ff; border-radius:2px; box-shadow:0 0 6px #0084ff;"></div>
@@ -102,7 +64,7 @@
       <aside class="sidebar-view" id="sidebarViewTab">
         <div class="sidebar-header">
           <div class="sidebar-header-top">
-            <h2>📋 אירועים – יום הכיפורים</h2>
+            <h2 id="sidebarTitle">📋 אירועים – יום הכיפורים 2026</h2>
             <span class="visible-counter" id="visibleCounter">מציג 11 מתוך 11</span>
           </div>
           <p>לחיצה על שורה מדגישה אותה וממקדת את המפה עם ניווט מהיר</p>
@@ -140,7 +102,7 @@
       </button>
       <button class="tab-btn" id="tabBtnList" onclick="switchTab('list')">
         <span class="tab-icon">📋</span>
-        <span>אירועים (11)</span>
+        <span id="mobileEventsLabel">אירועים (11)</span>
       </button>
       <button class="tab-btn" id="tabBtnLegend" onclick="switchTab('legend')">
         <span class="tab-icon">ℹ️</span>

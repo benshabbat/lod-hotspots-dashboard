@@ -612,3 +612,111 @@ var eventsData = [
     "waze_url": "https://waze.com/ul?ll=31.94800,34.88820&navigate=yes"
   }
 ];
+
+var events2026Data = eventsData;
+
+var historicalCategories2025 = {
+  violence_noise: {
+    title: "אלימות ורעש",
+    icon: "📣",
+    color: "#ca8a04",
+    background: "#fefce8",
+    event: "אירועי אלימות ורעש"
+  },
+  reckless_vehicle: {
+    title: "רכב / אופנוע משתולל",
+    icon: "🏍️",
+    color: "#111827",
+    background: "#f1f5f9",
+    event: "רכב או אופנוע משתולל"
+  },
+  horses: {
+    title: "סוסים משוטטים",
+    icon: "🐴",
+    color: "#92400e",
+    background: "#fff7ed",
+    event: "סוסים משוטטים"
+  },
+  hotspot: {
+    title: "נקודות חמות",
+    icon: "🔴",
+    color: "#dc2626",
+    background: "#fef2f2",
+    event: "נקודה חמה מבצעית"
+  }
+};
+
+function historicalEvent2025(id, category, street, area, latitude, longitude, caseCount) {
+  var categoryInfo = historicalCategories2025[category];
+  var count = caseCount || 1;
+  var countText = count > 1 ? count + " מקרים שתועדו במפת הסיכום" : "מוקד שתועד במפת הסיכום";
+
+  return {
+    id: id,
+    day: "סיכום מבצע יום הכיפורים 2025",
+    day_code: "year_2025",
+    day_badge: "2025",
+    category: category,
+    category_title: categoryInfo.title,
+    category_icon: categoryInfo.icon,
+    street: street,
+    area: area,
+    event: categoryInfo.event,
+    icon: categoryInfo.icon,
+    badge_color: categoryInfo.color,
+    badge_bg: categoryInfo.background,
+    lat: latitude,
+    lng: longitude,
+    case_count: count,
+    notes: countText + " באזור " + street + ".",
+    action: "נכלל במיפוי המבצעי לשנת 2025",
+    gmaps_url: "https://www.google.com/maps/search/?api=1&query=" + latitude + "," + longitude,
+    waze_url: "https://waze.com/ul?ll=" + latitude + "," + longitude + "&navigate=yes"
+  };
+}
+
+var events2025Data = [
+  historicalEvent2025(2501, "violence_noise", "גני אביב", "שכונת גני אביב", 31.9593257, 34.8812522, 9),
+  historicalEvent2025(2502, "violence_noise", "רחוב לאה גולדברג", "נווה זית", 31.9513334, 34.8852218),
+  historicalEvent2025(2503, "violence_noise", "רחוב אנה פרנק", "רמת אלישיב", 31.9512555, 34.8921793),
+  historicalEvent2025(2504, "violence_noise", "רחוב המצביאים", "נאות יצחק", 31.9348193, 34.8901447),
+
+  historicalEvent2025(2505, "reckless_vehicle", "רחוב חטיבת הנגב", "גני אביב", 31.9587, 34.8802),
+  historicalEvent2025(2506, "reckless_vehicle", "רחוב סן מרטין", "לוד הצעירה", 31.9446563, 34.8937623),
+  historicalEvent2025(2507, "reckless_vehicle", "גני אביב", "שכונת גני אביב", 31.9602, 34.8796, 3),
+
+  historicalEvent2025(2508, "horses", "רחוב הרב מרדכי אליהו", "רמת אלישיב", 31.9541905, 34.8923618),
+  historicalEvent2025(2509, "horses", "רחוב אהרון לובלין", "גני אביב", 31.9617062, 34.8752429),
+  historicalEvent2025(2510, "horses", "רחוב סחלב", "גני אביב", 31.9620678, 34.8808586),
+
+  historicalEvent2025(2511, "hotspot", "גני אביב כולה", "שכונת גני אביב", 31.9598, 34.883),
+  historicalEvent2025(2512, "hotspot", "פארק גני יער", "גני יער", 31.9452721, 34.9038083),
+  historicalEvent2025(2513, "hotspot", "הכניסה לנאות יצחק", "דרום העיר", 31.9345386, 34.8883973),
+  historicalEvent2025(2514, "hotspot", "כיכר הכדורים", "כיכר מנחם בגין", 31.9423069, 34.8910226),
+  historicalEvent2025(2515, "hotspot", "שדרות ירושלים פינת הציונות", "מרכז העיר", 31.9438, 34.8927),
+  historicalEvent2025(2516, "hotspot", "שלמה המלך צומת קייזר", "מרכז העיר", 31.9515, 34.8905),
+  historicalEvent2025(2517, "hotspot", "שלמה המלך פינת לבנה", "מרכז העיר", 31.948, 34.8882),
+  historicalEvent2025(2518, "hotspot", "רחוב פנקס דוד", "שכונת ממשלתית", 31.944371, 34.880723),
+  historicalEvent2025(2519, "hotspot", "האצטדיון העירוני", "נאות יצחק", 31.9336, 34.8876)
+];
+
+var dashboardYears = {
+  "2026": {
+    year: "2026",
+    title: "אירועים – יום הכיפורים 2026",
+    subtitle: "סיכום מבצע יום הכיפורים 2026 (ערב ומהלך החג)",
+    searchPlaceholder: "חיפוש רחוב, אירוע או שכונה (איילון, שלמה המלך, סוס, חסימה)...",
+    itemNoun: "אירועים",
+    showDayFilters: true,
+    events: events2026Data
+  },
+  "2025": {
+    year: "2025",
+    title: "מוקדים – יום הכיפורים 2025",
+    subtitle: "מפת סיכום מוקדים ואירועים – יום הכיפורים 2025",
+    searchPlaceholder: "חיפוש מוקד או רחוב (גני אביב, סן מרטין, סוסים, נקודה חמה)...",
+    itemNoun: "מוקדים",
+    showDayFilters: false,
+    events: events2025Data
+  }
+};

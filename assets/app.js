@@ -1,420 +1,414 @@
-// Initialize Leaflet Map
-    var map = L.map('map', {
-      zoomControl: false,
-      attributionControl: false
-    }).setView([31.954, 34.890], 13.5);
+// Map setup
+var map = L.map('map', {
+  zoomControl: false,
+  attributionControl: false
+}).setView([31.954, 34.890], 13.5);
 
-    L.control.zoom({ position: 'bottomright' }).addTo(map);
+L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // Close drawer on map click
-    map.on('click', function() {
-      closeDrawer();
-      clearActiveRow();
+map.on('click', function() {
+  closeDrawer();
+  clearActiveRow();
+});
+
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  maxZoom: 19
+}).addTo(map);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{r}.png', {
+  subdomains: 'abcd',
+  maxZoom: 19,
+  opacity: 0.85
+}).addTo(map);
+
+var lodBoundary = L.polygon(lodPolygonCoords, {
+  color: '#0084ff',
+  weight: 3.5,
+  opacity: 0.95,
+  fillColor: '#0084ff',
+  fillOpacity: 0.04
+}).addTo(map);
+
+function fitLodBounds() {
+  map.fitBounds(lodBoundary.getBounds(), { padding: [25, 25] });
+}
+
+var currentYear = '2026';
+var currentYearConfig = dashboardYears[currentYear];
+var eventsData = currentYearConfig.events;
+var markerInstances = {};
+var currentFilter = 'all';
+var currentSearch = '';
+var activeEventId = null;
+
+function dayTagClass(eventItem) {
+  if (eventItem.day_code === 'sunday') return 'tag-sun';
+  if (eventItem.day_code === 'monday') return 'tag-mon';
+  return 'tag-year';
+}
+
+function eventCountLabel(count) {
+  if (count === 1) return currentYear === '2026' ? 'אירוע אחד' : 'מוקד אחד';
+  return count + ' ' + currentYearConfig.itemNoun;
+}
+
+function uniqueCategoryGroups() {
+  var categories = {};
+  eventsData.forEach(function(eventItem) {
+    if (!categories[eventItem.category]) {
+      categories[eventItem.category] = {
+        key: eventItem.category,
+        title: eventItem.category_title,
+        icon: eventItem.category_icon || eventItem.icon,
+        color: eventItem.badge_color,
+        background: eventItem.badge_bg,
+        items: []
+      };
+    }
+    categories[eventItem.category].items.push(eventItem);
+  });
+  return Object.values(categories);
+}
+
+function renderMarkers() {
+  Object.values(markerInstances).forEach(function(marker) {
+    marker.remove();
+  });
+  markerInstances = {};
+
+  eventsData.forEach(function(eventItem) {
+    var tagClass = dayTagClass(eventItem);
+    var iconHtml = `
+      <div class="custom-incident-pin" id="pin-ev-${eventItem.id}">
+        <div class="pin-radar-ring"></div>
+        <div class="pin-badge-container" style="border-color:${eventItem.badge_color};">
+          <div class="pin-icon-circle" style="background:${eventItem.badge_color};">${eventItem.icon}</div>
+          <div class="pin-texts">
+            <div class="pin-title-row">
+              <span class="pin-day-badge ${tagClass}">${eventItem.day_badge}</span>
+              <span class="pin-title-text">${eventItem.street}</span>
+            </div>
+            <div class="pin-event-text">${eventItem.event}${eventItem.case_count > 1 ? ` · ${eventItem.case_count} מקרים` : ''}</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    var isMobile = window.innerWidth <= 600;
+    var customIcon = L.divIcon({
+      html: iconHtml,
+      className: 'leaflet-incident-div-icon',
+      iconSize: isMobile ? [36, 36] : [185, 44],
+      iconAnchor: isMobile ? [18, 18] : [92, 22],
+      popupAnchor: [0, -22]
     });
 
-    // Satellite Imagery Layer
-    var satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 19
-    }).addTo(map);
+    var popupHtml = `
+      <div class="popup-header">
+        <span style="font-weight:900; font-size:12.5px;">${eventItem.day} | ${eventItem.category_title}</span>
+        <span style="font-size:16px;">${eventItem.icon}</span>
+      </div>
+      <div class="popup-body">
+        <div class="popup-title">${eventItem.street}</div>
+        <div class="popup-loc">📍 ${eventItem.area}</div>
+        <div class="popup-desc"><strong>פירוט:</strong> ${eventItem.notes}<br><strong>סטטוס:</strong> ${eventItem.action}</div>
+        <div class="popup-actions">
+          <a href="${eventItem.gmaps_url}" target="_blank" class="popup-btn">📍 ניווט ב-Google Maps</a>
+          <a href="${eventItem.waze_url}" target="_blank" class="popup-btn waze">🚗 ניווט ב-Waze</a>
+        </div>
+      </div>
+    `;
 
-    // Labels layer
-    var labelsLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{r}.png', {
-      subdomains: 'abcd',
-      maxZoom: 19,
-      opacity: 0.85
-    }).addTo(map);
+    var marker = L.marker([eventItem.lat, eventItem.lng], { icon: customIcon }).addTo(map);
+    marker.on('click', function(clickEvent) {
+      L.DomEvent.stopPropagation(clickEvent);
+      selectEvent(eventItem.id, 'map');
+    });
+    marker.bindPopup(popupHtml);
+    markerInstances[eventItem.id] = marker;
+  });
+}
 
-    // Municipal Boundary Polygon of Lod
-    // lodPolygonCoords is loaded from data.js.
-    var lodBoundary = L.polygon(lodPolygonCoords, {
-      color: '#0084ff',
-      weight: 3.5,
-      opacity: 0.95,
-      fillColor: '#0084ff',
-      fillOpacity: 0.04
-    }).addTo(map);
+function renderFilterChips() {
+  var container = document.getElementById('filterChips');
+  var chips = [{ key: 'all', label: `הכל (${eventsData.length})`, day: false }];
 
-    function fitLodBounds() {
-      map.fitBounds(lodBoundary.getBounds(), { padding: [25, 25] });
-    }
-    fitLodBounds();
+  if (currentYearConfig.showDayFilters) {
+    var days = {};
+    eventsData.forEach(function(eventItem) {
+      if (!days[eventItem.day_code]) days[eventItem.day_code] = { label: eventItem.day, count: 0 };
+      days[eventItem.day_code].count += 1;
+    });
+    Object.keys(days).forEach(function(dayCode) {
+      chips.push({ key: 'day:' + dayCode, label: `${days[dayCode].label} (${days[dayCode].count})`, day: true });
+    });
+  }
 
-    // Events dataset
-    // eventsData is loaded from data.js.
-    var markerInstances = {};
-    var currentFilter = 'all';
-    var currentSearch = '';
-    var activeEventId = null;
+  uniqueCategoryGroups().forEach(function(category) {
+    chips.push({
+      key: 'cat:' + category.key,
+      label: `${category.icon} ${category.title} (${category.items.length})`,
+      day: false
+    });
+  });
 
-    // Render Markers
-    eventsData.forEach(function(ev) {
-      var dayTagClass = ev.day_code === 'sunday' ? 'tag-sun' : 'tag-mon';
-      var dayLabel = ev.day_badge;
+  container.innerHTML = chips.map(function(chip) {
+    return `<button class="chip${chip.key === 'all' ? ' active' : ''}${chip.day ? ' day-chip' : ''}"
+      data-filter="${chip.key}" onclick="applyFilter(this, '${chip.key}')">${chip.label}</button>`;
+  }).join('');
+}
 
-      var iconHtml = `
-        <div class="custom-incident-pin" id="pin-ev-${ev.id}">
-          <div class="pin-radar-ring"></div>
-          <div class="pin-badge-container" style="border-color: ${ev.badge_color};">
-            <div class="pin-icon-circle" style="background: ${ev.badge_color};">${ev.icon}</div>
-            <div class="pin-texts">
-              <div class="pin-title-row">
-                <span class="pin-day-badge ${dayTagClass}">${dayLabel}</span>
-                <span class="pin-title-text">${ev.street}</span>
+function renderLegend() {
+  document.getElementById('legendTitle').innerText = 'מקרא סמלים - ' + currentYear;
+  document.getElementById('legendItems').innerHTML = uniqueCategoryGroups().map(function(category) {
+    return `<div class="legend-line"><span>${category.title}</span>
+      <div class="legend-icon" style="background:${category.background}; color:${category.color}; border:1px solid ${category.color};">${category.icon}</div></div>`;
+  }).join('');
+}
+
+function buildSidebarTables() {
+  var container = document.getElementById('tablesContainer');
+  container.innerHTML = '';
+
+  uniqueCategoryGroups().forEach(function(category) {
+    var box = document.createElement('section');
+    box.className = 'report-table-box';
+    box.id = 'cat-box-' + category.key;
+    box.setAttribute('data-cat', category.key);
+    box.style.setProperty('--cat-color', category.color);
+    box.style.setProperty('--cat-bg', category.background);
+
+    var cards = category.items.map(function(eventItem) {
+      var occurrenceBadge = eventItem.case_count > 1
+        ? `<span class="occurrence-badge">${eventItem.case_count} מקרים</span>`
+        : '';
+      return `
+        <article class="event-card" id="row-ev-${eventItem.id}" data-id="${eventItem.id}"
+          data-day="${eventItem.day_code}" data-cat="${eventItem.category}"
+          style="--accent:${eventItem.badge_color}; --accent-bg:${eventItem.badge_bg};" tabindex="0" role="button"
+          aria-label="${eventItem.event}, ${eventItem.street}" onclick="selectEvent(${eventItem.id}, 'table')"
+          onkeydown="if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); selectEvent(${eventItem.id}, 'table'); }">
+          <div class="event-card-head">
+            <div class="event-icon" aria-hidden="true">${eventItem.icon}</div>
+            <div class="event-card-copy">
+              <div class="event-card-title-row">
+                <div class="event-name">${eventItem.event}</div>
+                <span class="day-tag ${dayTagClass(eventItem)}">${eventItem.day_badge}</span>
               </div>
-              <div class="pin-event-text">${ev.event}</div>
+              <div class="event-location">📍 ${eventItem.street} · ${eventItem.area}</div>
             </div>
           </div>
-        </div>
-      `;
-
-      var isMobile = window.innerWidth <= 600;
-      var customIcon = L.divIcon({
-        html: iconHtml,
-        className: 'leaflet-incident-div-icon',
-        iconSize: isMobile ? [36, 36] : [185, 44],
-        iconAnchor: isMobile ? [18, 18] : [92, 22],
-        popupAnchor: [0, -22]
-      });
-
-      var popupHtml = `
-        <div class="popup-header">
-          <span style="font-weight:900; font-size:12.5px;">${ev.day} | ${ev.category_title}</span>
-          <span style="font-size:16px;">${ev.icon}</span>
-        </div>
-        <div class="popup-body">
-          <div class="popup-title">${ev.street}</div>
-          <div class="popup-loc">📍 ${ev.area}</div>
-          <div class="popup-desc">
-            <strong>פירוט האירוע:</strong> ${ev.notes}<br>
-            <strong>סטטוס טיפול:</strong> ${ev.action}
+          <div class="event-notes">${eventItem.notes}</div>
+          <div class="event-status"><span aria-hidden="true">✓</span><span class="status-label">${currentYear === '2026' ? 'טיפול:' : 'סטטוס:'}</span><span>${eventItem.action}</span></div>
+          <div class="event-card-footer">
+            <span class="event-number">${currentYear === '2026' ? 'אירוע' : 'מוקד'} #${eventItem.id}</span>${occurrenceBadge}
+            <div class="action-links">
+              <a href="${eventItem.gmaps_url}" target="_blank" class="act-link" onclick="event.stopPropagation();">📍 Google Maps</a>
+              <a href="${eventItem.waze_url}" target="_blank" class="act-link" onclick="event.stopPropagation();">🚗 Waze</a>
+            </div>
           </div>
-          <div class="popup-actions">
-            <a href="${ev.gmaps_url}" target="_blank" class="popup-btn">
-              📍 ניווט ב-Google Maps
-            </a>
-            <a href="${ev.waze_url}" target="_blank" class="popup-btn waze">
-              🚗 ניווט ב-Waze
-            </a>
-          </div>
-        </div>
-      `;
+        </article>`;
+    }).join('');
 
-      var marker = L.marker([ev.lat, ev.lng], { icon: customIcon }).addTo(map);
+    box.innerHTML = `<div class="table-cat-title">
+      <span class="cat-title-label"><span class="cat-title-icon">${category.icon}</span>${category.title}</span>
+      <span class="cat-badge" id="cat-badge-${category.key}">${eventCountLabel(category.items.length)}</span>
+      </div><div class="event-cards">${cards}</div>`;
+    container.appendChild(box);
+  });
 
-      // On Marker Click -> Select event with two-way active highlighting!
-      marker.on('click', function(e) {
-        L.DomEvent.stopPropagation(e);
-        selectEvent(ev.id, 'map');
-      });
+  var emptyState = document.createElement('div');
+  emptyState.className = 'no-results';
+  emptyState.id = 'noResults';
+  emptyState.innerHTML = `<span class="no-results-icon">🔎</span><strong>לא נמצאו ${currentYearConfig.itemNoun}</strong><br>נסו לשנות את החיפוש או לבחור מסנן אחר`;
+  container.appendChild(emptyState);
+}
 
-      marker.bindPopup(popupHtml);
-      markerInstances[ev.id] = marker;
-    });
+function updateYearInterface() {
+  document.getElementById('headerSubtitle').innerText = 'מוקד רואה וביטחון עירוני | ' + currentYearConfig.subtitle;
+  document.getElementById('sidebarTitle').innerText = '📋 ' + currentYearConfig.title;
+  document.getElementById('searchInput').placeholder = currentYearConfig.searchPlaceholder;
+  document.getElementById('visibleCounter').innerText = `מציג ${eventsData.length} מתוך ${eventsData.length}`;
+  document.getElementById('mobileEventsLabel').innerText = `${currentYearConfig.itemNoun} (${eventsData.length})`;
+  document.title = `מוקד רואה וביטחון עירוני - לוד | ${currentYearConfig.title}`;
 
-    function eventCountLabel(count) {
-      return count === 1 ? 'אירוע אחד' : count + ' אירועים';
-    }
+  document.querySelectorAll('.year-btn').forEach(function(button) {
+    var isActive = button.id === 'yearBtn' + currentYear;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-pressed', String(isActive));
+  });
+}
 
-    // Build Categorized Tables in Sidebar
-    function buildSidebarTables() {
-      var container = document.getElementById('tablesContainer');
-      container.innerHTML = '';
+function switchYear(year) {
+  if (!dashboardYears[year]) return;
+  currentYear = year;
+  currentYearConfig = dashboardYears[year];
+  eventsData = currentYearConfig.events;
+  currentFilter = 'all';
+  currentSearch = '';
+  activeEventId = null;
 
-      // Group events by category
-      var categoriesMap = {};
-      eventsData.forEach(function(ev) {
-        if (!categoriesMap[ev.category]) {
-          categoriesMap[ev.category] = {
-            key: ev.category,
-            title: ev.category_title,
-            icon: ev.category_icon || ev.icon,
-            items: []
-          };
-        }
-        categoriesMap[ev.category].items.push(ev);
-      });
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').style.display = 'none';
+  closeDrawer();
+  map.closePopup();
+  updateYearInterface();
+  renderFilterChips();
+  renderLegend();
+  renderMarkers();
+  buildSidebarTables();
+  updateVisibility();
 
-      Object.values(categoriesMap).forEach(function(catGroup) {
-        var box = document.createElement('div');
-        box.className = 'report-table-box';
-        box.id = 'cat-box-' + catGroup.key;
-        box.setAttribute('data-cat', catGroup.key);
+  var pageUrl = new URL(window.location.href);
+  pageUrl.searchParams.set('year', currentYear);
+  window.history.replaceState({}, '', pageUrl);
+}
 
-        var categoryColor = catGroup.items[0].badge_color;
-        var categoryBg = catGroup.items[0].badge_bg;
-        box.style.setProperty('--cat-color', categoryColor);
-        box.style.setProperty('--cat-bg', categoryBg);
+function selectEvent(id, source) {
+  activeEventId = id;
+  var eventItem = eventsData.find(function(item) { return item.id === id; });
+  var marker = markerInstances[id];
+  if (!eventItem || !marker) return;
 
-        var rowsHtml = catGroup.items.map(function(ev, idx) {
-          var dayTagClass = ev.day_code === 'sunday' ? 'tag-sun' : 'tag-mon';
-          return `
-            <article class="event-card" id="row-ev-${ev.id}" data-id="${ev.id}" data-day="${ev.day_code}" data-cat="${ev.category}"
-              style="--accent:${ev.badge_color}; --accent-bg:${ev.badge_bg};" tabindex="0" role="button"
-              aria-label="${ev.event}, ${ev.street}" onclick="selectEvent(${ev.id}, 'table')"
-              onkeydown="if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); selectEvent(${ev.id}, 'table'); }">
-              <div class="event-card-head">
-                <div class="event-icon" aria-hidden="true">${ev.icon}</div>
-                <div class="event-card-copy">
-                  <div class="event-card-title-row">
-                    <div class="event-name">${ev.event}</div>
-                    <span class="day-tag ${dayTagClass}">${ev.day_badge}</span>
-                  </div>
-                  <div class="event-location">📍 ${ev.street} · ${ev.area}</div>
-                </div>
-              </div>
-              <div class="event-notes">${ev.notes}</div>
-              <div class="event-status"><span aria-hidden="true">✓</span><span class="status-label">טיפול:</span><span>${ev.action}</span></div>
-              <div class="event-card-footer">
-                <span class="event-number">אירוע #${ev.id}</span>
-                <div class="action-links">
-                  <a href="${ev.gmaps_url}" target="_blank" class="act-link" onclick="event.stopPropagation();">📍 Google Maps</a>
-                  <a href="${ev.waze_url}" target="_blank" class="act-link" onclick="event.stopPropagation();">🚗 Waze</a>
-                </div>
-              </div>
-            </article>
-          `;
-        }).join('');
+  document.querySelectorAll('.event-card').forEach(function(card) { card.classList.remove('active-row'); });
+  var targetCard = document.getElementById('row-ev-' + id);
+  if (targetCard) {
+    targetCard.classList.add('active-row');
+    if (source === 'map') targetCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
 
-        box.innerHTML = `
-          <div class="table-cat-title">
-            <span class="cat-title-label"><span class="cat-title-icon">${catGroup.icon}</span>${catGroup.title}</span>
-            <span class="cat-badge" id="cat-badge-${catGroup.key}">${eventCountLabel(catGroup.items.length)}</span>
-          </div>
-          <div class="event-cards">${rowsHtml}</div>
-        `;
-        container.appendChild(box);
-      });
+  document.querySelectorAll('.leaflet-incident-div-icon').forEach(function(pin) { pin.classList.remove('selected-pin'); });
+  var pinElement = marker.getElement();
+  if (pinElement) pinElement.classList.add('selected-pin');
+  map.setView(marker.getLatLng(), 16, { animate: true });
 
-      var emptyState = document.createElement('div');
-      emptyState.className = 'no-results';
-      emptyState.id = 'noResults';
-      emptyState.innerHTML = '<span class="no-results-icon">🔎</span><strong>לא נמצאו אירועים</strong><br>נסו לשנות את החיפוש או לבחור מסנן אחר';
-      container.appendChild(emptyState);
-    }
+  if (window.innerWidth <= 992) {
+    openMobileDrawer(eventItem);
+    if (source === 'table') switchTab('map');
+  } else {
+    marker.openPopup();
+  }
+}
 
-    buildSidebarTables();
+function clearActiveRow() {
+  activeEventId = null;
+  document.querySelectorAll('.event-card').forEach(function(card) { card.classList.remove('active-row'); });
+  document.querySelectorAll('.leaflet-incident-div-icon').forEach(function(pin) { pin.classList.remove('selected-pin'); });
+}
 
-    // Two-Way Interactive Event Selection (Row click <-> Marker click)
-    function selectEvent(id, source) {
-      activeEventId = id;
-      var ev = eventsData.find(e => e.id === id);
-      var m = markerInstances[id];
-      if (!ev || !m) return;
+function openMobileDrawer(eventItem) {
+  var drawer = document.getElementById('mobileDrawer');
+  document.getElementById('drawerTitle').innerHTML = `${eventItem.icon} ${eventItem.street} (${eventItem.event})`;
+  document.getElementById('drawerLoc').innerText = `📍 ${eventItem.day} | ${eventItem.area}`;
+  document.getElementById('drawerDesc').innerHTML = `<strong>פירוט:</strong> ${eventItem.notes}<br><strong>סטטוס:</strong> ${eventItem.action}`;
+  document.getElementById('drawerGmapsBtn').href = eventItem.gmaps_url;
+  document.getElementById('drawerWazeBtn').href = eventItem.waze_url;
+  drawer.style.display = 'block';
+}
 
-      // 1. Highlight Row in Table
-      document.querySelectorAll('.event-card').forEach(function(r) {
-        r.classList.remove('active-row');
-      });
-      var targetRow = document.getElementById('row-ev-' + id);
-      if (targetRow) {
-        targetRow.classList.add('active-row');
-        // If triggered from map click, scroll table smoothly to row
-        if (source === 'map') {
-          targetRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-      }
+function closeDrawer() {
+  document.getElementById('mobileDrawer').style.display = 'none';
+}
 
-      // 2. Highlight Pin on Map
-      document.querySelectorAll('.leaflet-incident-div-icon').forEach(function(p) {
-        p.classList.remove('selected-pin');
-      });
-      var pinElem = m.getElement();
-      if (pinElem) {
-        pinElem.classList.add('selected-pin');
-      }
+function applyFilter(button, filterKey) {
+  currentFilter = filterKey;
+  document.querySelectorAll('.chip').forEach(function(chip) { chip.classList.remove('active'); });
+  if (button) button.classList.add('active');
+  updateVisibility();
+}
 
-      // 3. Focus Map
-      map.setView(m.getLatLng(), 16, { animate: true });
+function handleSearch(query) {
+  currentSearch = query.trim().toLowerCase();
+  document.getElementById('searchClear').style.display = currentSearch ? 'flex' : 'none';
+  updateVisibility();
+}
 
-      // 4. Open Popup or Mobile Drawer
-      if (window.innerWidth <= 992) {
-        openMobileDrawer(ev);
-        if (source === 'table') {
-          switchTab('map');
-        }
-      } else {
-        m.openPopup();
-      }
-    }
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  handleSearch('');
+}
 
-    function clearActiveRow() {
-      activeEventId = null;
-      document.querySelectorAll('.event-card').forEach(function(r) {
-        r.classList.remove('active-row');
-      });
-      document.querySelectorAll('.leaflet-incident-div-icon').forEach(function(p) {
-        p.classList.remove('selected-pin');
-      });
-    }
+function updateVisibility() {
+  var visibleMarkers = [];
+  var visibleCount = 0;
 
-    function openMobileDrawer(ev) {
-      var drawer = document.getElementById('mobileDrawer');
-      document.getElementById('drawerTitle').innerHTML = `${ev.icon} ${ev.street} (${ev.event})`;
-      document.getElementById('drawerLoc').innerText = `📍 ${ev.day} | ${ev.area}`;
-      document.getElementById('drawerDesc').innerHTML = `<strong>פעילות:</strong> ${ev.notes}<br><strong>טיפול:</strong> ${ev.action}`;
-      document.getElementById('drawerGmapsBtn').href = ev.gmaps_url;
-      document.getElementById('drawerWazeBtn').href = ev.waze_url;
-      drawer.style.display = 'block';
-    }
+  eventsData.forEach(function(eventItem) {
+    var marker = markerInstances[eventItem.id];
+    var matchesFilter = currentFilter === 'all';
+    if (currentFilter.startsWith('day:')) matchesFilter = eventItem.day_code === currentFilter.split(':')[1];
+    else if (currentFilter.startsWith('cat:')) matchesFilter = eventItem.category === currentFilter.split(':')[1];
 
-    function closeDrawer() {
-      document.getElementById('mobileDrawer').style.display = 'none';
-    }
+    var searchableText = [eventItem.street, eventItem.area, eventItem.event, eventItem.notes, eventItem.day, eventItem.category_title].join(' ').toLowerCase();
+    var shouldShow = matchesFilter && (!currentSearch || searchableText.includes(currentSearch));
 
-    // Filter Chips: updates BOTH Map and Sidebar with active highlight!
-    function applyFilter(btn, filterKey) {
-      currentFilter = filterKey;
+    if (shouldShow) {
+      if (!map.hasLayer(marker)) marker.addTo(map);
+      visibleMarkers.push(marker);
+      visibleCount += 1;
+    } else if (map.hasLayer(marker)) marker.remove();
 
-      // Update chip active classes
-      document.querySelectorAll('.chip').forEach(function(b) {
-        b.classList.remove('active');
-      });
-      if (btn) {
-        btn.classList.add('active');
-      } else {
-        var match = document.querySelector(`.chip[data-filter="${filterKey}"]`);
-        if (match) match.classList.add('active');
-      }
+    var card = document.getElementById('row-ev-' + eventItem.id);
+    if (card) card.style.display = shouldShow ? '' : 'none';
+  });
 
-      updateVisibility();
-    }
+  document.querySelectorAll('.report-table-box').forEach(function(box) {
+    var cards = box.querySelectorAll('.event-card');
+    var visibleCards = Array.from(cards).filter(function(card) { return card.style.display !== 'none'; });
+    box.style.display = visibleCards.length ? '' : 'none';
+    var badge = document.getElementById('cat-badge-' + box.getAttribute('data-cat'));
+    if (badge) badge.innerText = eventCountLabel(visibleCards.length);
+  });
 
-    // Search input: updates BOTH Map and Sidebar in real-time
-    function handleSearch(query) {
-      currentSearch = query.trim().toLowerCase();
-      var clearBtn = document.getElementById('searchClear');
-      if (clearBtn) {
-        clearBtn.style.display = currentSearch ? 'flex' : 'none';
-      }
-      updateVisibility();
-    }
+  document.getElementById('visibleCounter').innerText = `מציג ${visibleCount} מתוך ${eventsData.length}`;
+  document.getElementById('noResults').style.display = visibleCount === 0 ? 'block' : 'none';
 
-    function clearSearch() {
-      var input = document.getElementById('searchInput');
-      if (input) input.value = '';
-      handleSearch('');
-    }
+  if (visibleMarkers.length && (currentFilter !== 'all' || currentSearch)) {
+    map.fitBounds(L.featureGroup(visibleMarkers).getBounds(), { padding: [60, 60], maxZoom: 15 });
+  } else if (currentFilter === 'all' && !currentSearch) fitLodBounds();
+}
 
-    // Core Visibility & Synchronization Engine
-    function updateVisibility() {
-      var visibleMarkers = [];
-      var visibleCount = 0;
+function switchTab(tab) {
+  var mapElement = document.getElementById('mapViewTab');
+  var sidebarElement = document.getElementById('sidebarViewTab');
+  var mapButton = document.getElementById('tabBtnMap');
+  var listButton = document.getElementById('tabBtnList');
+  var legendButton = document.getElementById('tabBtnLegend');
 
-      eventsData.forEach(function(ev) {
-        var m = markerInstances[ev.id];
-        var matchFilter = false;
+  mapButton.classList.remove('active');
+  listButton.classList.remove('active');
+  legendButton.classList.remove('active');
+  if (tab === 'map') {
+    mapElement.style.display = 'block';
+    sidebarElement.style.display = 'none';
+    mapButton.classList.add('active');
+    setTimeout(function() { map.invalidateSize(); }, 100);
+  } else if (tab === 'list') {
+    mapElement.style.display = 'none';
+    sidebarElement.style.display = 'flex';
+    listButton.classList.add('active');
+    closeDrawer();
+  } else if (tab === 'legend') {
+    mapElement.style.display = 'block';
+    sidebarElement.style.display = 'none';
+    legendButton.classList.add('active');
+    var legend = document.getElementById('desktopLegend');
+    legend.style.display = legend.style.display === 'block' ? 'none' : 'block';
+    setTimeout(function() { map.invalidateSize(); }, 100);
+  }
+}
 
-        if (currentFilter === 'all') {
-          matchFilter = true;
-        } else if (currentFilter.startsWith('day:')) {
-          var d = currentFilter.split(':')[1];
-          matchFilter = (ev.day_code === d);
-        } else if (currentFilter.startsWith('cat:')) {
-          var c = currentFilter.split(':')[1];
-          matchFilter = (ev.category === c);
-        }
+function shareSummaryWhatsApp() {
+  var categoryLines = uniqueCategoryGroups().map(function(category) {
+    var locations = category.items.map(function(item) {
+      return item.street + (item.case_count > 1 ? ` (${item.case_count} מקרים)` : '');
+    }).join(', ');
+    return `*${category.icon} ${category.title}:* ${locations}`;
+  }).join('\n');
 
-        var matchSearch = true;
-        if (currentSearch) {
-          var haystack = (ev.street + " " + ev.area + " " + ev.event + " " + ev.notes + " " + ev.day).toLowerCase();
-          matchSearch = haystack.includes(currentSearch);
-        }
+  var text = `📢 *${currentYearConfig.title} – עיריית לוד*\n\n${categoryLines}\n\n` +
+    `לצפייה במפה האינטראקטיבית ובניווט ישיר: ${window.location.href}`;
+  window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
+}
 
-        var show = matchFilter && matchSearch;
-
-        // 1. Update Map Marker
-        if (show) {
-          if (!map.hasLayer(m)) map.addLayer(m);
-          visibleMarkers.push(m);
-          visibleCount++;
-        } else {
-          if (map.hasLayer(m)) map.removeLayer(m);
-        }
-
-        // 2. Update Table Row
-        var row = document.getElementById('row-ev-' + ev.id);
-        if (row) {
-          row.style.display = show ? '' : 'none';
-        }
-      });
-
-      // 3. Update Category Boxes in Sidebar
-      document.querySelectorAll('.report-table-box').forEach(function(box) {
-        var rows = box.querySelectorAll('.event-card');
-        var visRows = Array.from(rows).filter(r => r.style.display !== 'none');
-        box.style.display = visRows.length > 0 ? '' : 'none';
-        var catKey = box.getAttribute('data-cat');
-        var badge = document.getElementById('cat-badge-' + catKey);
-        if (badge) {
-          badge.innerText = eventCountLabel(visRows.length);
-        }
-      });
-
-      // 4. Update Counter Header
-      var counter = document.getElementById('visibleCounter');
-      if (counter) {
-        counter.innerText = `מציג ${visibleCount} מתוך ${eventsData.length}`;
-      }
-
-      var noResults = document.getElementById('noResults');
-      if (noResults) {
-        noResults.style.display = visibleCount === 0 ? 'block' : 'none';
-      }
-
-      // 5. Smart Map Framing
-      if (visibleMarkers.length > 0 && currentFilter !== 'all') {
-        var group = L.featureGroup(visibleMarkers);
-        map.fitBounds(group.getBounds(), { padding: [60, 60], maxZoom: 15 });
-      } else if (currentFilter === 'all' && !currentSearch) {
-        fitLodBounds();
-      }
-    }
-
-    // Mobile Tab Bar Switcher
-    function switchTab(tab) {
-      var mapEl = document.getElementById('mapViewTab');
-      var sideEl = document.getElementById('sidebarViewTab');
-      var btnMap = document.getElementById('tabBtnMap');
-      var btnList = document.getElementById('tabBtnList');
-      var btnLegend = document.getElementById('tabBtnLegend');
-
-      btnMap.classList.remove('active');
-      btnList.classList.remove('active');
-      btnLegend.classList.remove('active');
-
-      if (tab === 'map') {
-        mapEl.style.display = 'block';
-        sideEl.style.display = 'none';
-        btnMap.classList.add('active');
-        setTimeout(function() { map.invalidateSize(); }, 100);
-      } else if (tab === 'list') {
-        mapEl.style.display = 'none';
-        sideEl.style.display = 'flex';
-        btnList.classList.add('active');
-        closeDrawer();
-      } else if (tab === 'legend') {
-        mapEl.style.display = 'block';
-        sideEl.style.display = 'none';
-        btnLegend.classList.add('active');
-        var leg = document.getElementById('desktopLegend');
-        leg.style.display = leg.style.display === 'block' ? 'none' : 'block';
-        setTimeout(function() { map.invalidateSize(); }, 100);
-      }
-    }
-
-    function shareSummaryWhatsApp() {
-      var text = `📢 *סיכום נקודות חמות - עיריית לוד | מבצע יום הכיפורים* (ראשון ושני):\n` +
-        `*ערב יום כיפור (יום א'):*\n` +
-        `• שד' מיכה רייסר: פתיחת דוכן מזון פיראטי\n` +
-        `• רח' מאיר הר ציון: גניבת מצלמת מוקד רואה + נסיעות אופנועים\n\n` +
-        `*מהלך וצאת יום כיפור (יום ב'):*\n` +
-        `• שכונת נאות יצחק: מיניבוס חסימה יצא לפני צאת כיפור (17:00)\n` +
-        `• פארק גני אביב: חשד לגניבת מצלמת עירייה\n` +
-        `• רח' עשרת הרוגי מלכות: סוס משוטט\n` +
-        `• רח' איילון 11: שריפת ספה במרחב הציבורי\n` +
-        `• רח' אריה רובין: רעש וצעקות נערות\n` +
-        `• שד' דוד המלך + שלמה המלך: התקהלויות נוער והקמת רעש\n\n` +
-        `לצפייה במפה האינטראקטיבית ובניווט ישיר ב-Google Maps וב-Waze: ${window.location.href}`;
-      var url = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(text);
-      window.open(url, '_blank');
-    }
+var requestedYear = new URLSearchParams(window.location.search).get('year');
+switchYear(dashboardYears[requestedYear] ? requestedYear : '2026');
