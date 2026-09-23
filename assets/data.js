@@ -610,6 +610,48 @@ var eventsData = [
     "action": "פיזור ע\"י כוח שיטור עירוני ואזהרות למארגנים",
     "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.94800,34.88820",
     "waze_url": "https://waze.com/ul?ll=31.94800,34.88820&navigate=yes"
+  },
+  {
+    "id": 12,
+    "day": "יום כיפור (יום ב')",
+    "day_code": "monday",
+    "day_badge": "יום כיפור",
+    "category": "traffic_motorcycle",
+    "category_title": "רכב / אופנוע משתולל בערב כיפור",
+    "category_icon": "🏍️",
+    "street": "רחוב יוספטל",
+    "area": "מערב העיר",
+    "event": "התקהלות ונסיעות של רכבים ממונעים",
+    "icon": "🏍️",
+    "badge_color": "#1e293b",
+    "badge_bg": "#f8fafc",
+    "lat": 31.9476434,
+    "lng": 34.8782183,
+    "notes": "התקהלות ונסיעות של רכבים ממונעים ברחוב יוספטל במהלך יום הכיפורים",
+    "action": "נקודה חמה לתגבור נוכחות ואכיפת רכבים ממונעים",
+    "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.9476434,34.8782183",
+    "waze_url": "https://waze.com/ul?ll=31.9476434,34.8782183&navigate=yes"
+  },
+  {
+    "id": 13,
+    "day": "יום כיפור (יום ב')",
+    "day_code": "monday",
+    "day_badge": "יום כיפור",
+    "category": "traffic_motorcycle",
+    "category_title": "רכב / אופנוע משתולל בערב כיפור",
+    "category_icon": "🏍️",
+    "street": "רחוב הרב מרדכי אליהו",
+    "area": "שכונת רמת אלישיב",
+    "event": "התקהלות ונסיעות של רכבים ממונעים",
+    "icon": "🏍️",
+    "badge_color": "#1e293b",
+    "badge_bg": "#f8fafc",
+    "lat": 31.9541905,
+    "lng": 34.8923618,
+    "notes": "התקהלות ונסיעות של רכבים ממונעים ברחוב הרב מרדכי אליהו בשכונת רמת אלישיב במהלך יום הכיפורים",
+    "action": "נקודה חמה לתגבור נוכחות ואכיפת רכבים ממונעים",
+    "gmaps_url": "https://www.google.com/maps/search/?api=1&query=31.9541905,34.8923618",
+    "waze_url": "https://waze.com/ul?ll=31.9541905,34.8923618&navigate=yes"
   }
 ];
 
@@ -700,6 +742,48 @@ var events2025Data = [
   historicalEvent2025(2519, "hotspot", "האצטדיון העירוני", "נאות יצחק", 31.9336, 34.8876)
 ];
 
+var districtReports2026 = [
+  {
+    id: "district-1",
+    manager: "יוסי חזוט",
+    role: "מנהל רובע מדווח",
+    neighborhood: "שכונת גני יער",
+    location: "שכונת גני יער",
+    lat: 31.9452721,
+    lng: 34.9038083,
+    title: "נסיעת כלים ממונעים בכביש",
+    details: "מספר כלים ממונעים נוסעים על הכביש. באחד המקרים תועדה נסיעה על קורקינט חשמלי; ניידת עברה ליד הרוכבים אך ללא תגובה מצידה.",
+    response: "ללא תגובה מצד הניידת",
+    severity: "attention"
+  },
+  {
+    id: "district-2",
+    manager: "יוסי חזוט",
+    role: "מנהל רובע מדווח",
+    neighborhood: "שכונת בן שמן",
+    location: "שכונת בן שמן",
+    lat: 31.9443172,
+    lng: 34.9013588,
+    title: "ממונעים וקורקינטים חשמליים",
+    details: "נסיעות בתוך השכונה באמצעות כלים ממונעים וקורקינטים חשמליים.",
+    response: "נדרש מעקב ואכיפה בשכונה",
+    severity: "monitor"
+  },
+  {
+    id: "district-3",
+    manager: "סילבר ברוך",
+    role: "מנהל רובע מדווח",
+    neighborhood: "שכונת אלישיב",
+    location: "רחוב הרב מרדכי אליהו, שכונת אלישיב",
+    lat: 31.9541905,
+    lng: 34.8923618,
+    title: "כניסת ממונעים וטרקטורונים",
+    details: "כניסה של כלים ממונעים, בעיקר טרקטורונים, ברחבי רחוב מרדכי אליהו ללא מענה משטרתי.",
+    response: "ללא מענה משטרתי",
+    severity: "urgent"
+  }
+];
+
 var dashboardYears = {
   "2026": {
     year: "2026",
@@ -708,7 +792,8 @@ var dashboardYears = {
     searchPlaceholder: "חיפוש רחוב, אירוע או שכונה (איילון, שלמה המלך, סוס, חסימה)...",
     itemNoun: "אירועים",
     showDayFilters: true,
-    events: events2026Data
+    events: events2026Data,
+    districtReports: districtReports2026
   },
   "2025": {
     year: "2025",
@@ -717,6 +802,7 @@ var dashboardYears = {
     searchPlaceholder: "חיפוש מוקד או רחוב (גני אביב, סן מרטין, סוסים, נקודה חמה)...",
     itemNoun: "מוקדים",
     showDayFilters: false,
-    events: events2025Data
+    events: events2025Data,
+    districtReports: []
   }
 };
