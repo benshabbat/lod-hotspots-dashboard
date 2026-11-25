@@ -869,11 +869,6 @@ var abandonedVehiclesReport = {
     "אלברט איינשטיין": 6, "סן מרטין": 2, "זלמן ארן": 1, "יער אמציה": 2,
     "דיזראעלי": 5, "התקווה": 3
   },
-  // Streets with many requests that are not on the zone lists; their zone is not stated.
-  extraHotspots: {
-    title: "מוקדים נוספים לפי נתוני המוקד",
-    streets: ["דיזראעלי", "התקווה"]
-  },
   zones: [
     {
       key: "ganei_aviv",
@@ -893,7 +888,7 @@ var abandonedVehiclesReport = {
       color: "#e8641c",
       ink: "#ffffff",
       chartNote: "דקר, שבט זבולון, שבט יהודה, דוד המלך",
-      hotspots: ["שבט זבולון", "שבט יהודה", "דקר", "ארלוזורוב", "דוד המלך"],
+      hotspots: ["שבט זבולון", "שבט יהודה", "דקר", "ארלוזורוב", "דוד המלך", "דיזראעלי", "התקווה"],
       lat: 31.949,
       lng: 34.8878
     },
