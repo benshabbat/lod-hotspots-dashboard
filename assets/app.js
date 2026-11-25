@@ -369,6 +369,8 @@ function buildSidebarTables() {
 
 function updateYearInterface() {
   var reportsCount = (currentYearConfig.districtReports || []).length;
+  document.getElementById('headerTitle').innerText = 'מפת נקודות חמות ואירועים חריגים';
+  document.getElementById('sidebarHint').innerText = 'לחיצה על שורה מדגישה אותה וממקדת את המפה עם ניווט מהיר';
   document.getElementById('headerSubtitle').innerText = 'מוקד רואה וביטחון עירוני | ' + currentYearConfig.subtitle;
   document.getElementById('sidebarTitle').innerText = '📋 ' + currentYearConfig.title;
   document.getElementById('searchInput').placeholder = currentYearConfig.searchPlaceholder;
@@ -462,6 +464,8 @@ function clearActiveRow() {
   document.querySelectorAll('.event-card').forEach(function(card) { card.classList.remove('active-row'); });
   document.querySelectorAll('.leaflet-incident-div-icon').forEach(function(pin) { pin.classList.remove('selected-pin'); });
   document.querySelectorAll('.district-report-card').forEach(function(card) { card.classList.remove('active-report'); });
+  document.querySelectorAll('.vr-active').forEach(function(element) { element.classList.remove('vr-active'); });
+  resetVehicleHalos();
 }
 
 function openMobileDrawer(eventItem) {
@@ -504,6 +508,7 @@ function clearSearch() {
 }
 
 function updateVisibility() {
+  if (currentModule === 'vehicles') return updateVehiclesVisibility();
   var visibleMarkers = [];
   var visibleCount = 0;
   var visibleReportsCount = 0;
@@ -635,6 +640,7 @@ window.addEventListener('resize', function() {
 });
 
 function shareSummaryWhatsApp() {
+  if (currentModule === 'vehicles') return shareVehiclesWhatsApp();
   var categoryLines = uniqueCategoryGroups().map(function(category) {
     var locations = category.items.map(function(item) {
       return item.street + (item.case_count > 1 ? ` (${item.case_count} מקרים)` : '');
@@ -649,6 +655,8 @@ function shareSummaryWhatsApp() {
 
 var requestedYear = new URLSearchParams(window.location.search).get('year');
 switchYear(dashboardYears[requestedYear] ? requestedYear : '2026');
+
+if (new URLSearchParams(window.location.search).get('mode') === 'vehicles') switchModule('vehicles');
 
 var requestedView = new URLSearchParams(window.location.search).get('view');
 if (requestedView === 'list' && window.innerWidth <= 992) switchTab('list');

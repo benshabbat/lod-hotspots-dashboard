@@ -806,3 +806,95 @@ var dashboardYears = {
     districtReports: []
   }
 };
+
+// ---------------------------------------------------------------------------
+// Abandoned vehicles & car scrap – a standalone municipal snapshot.
+// Not related to the Yom Kippur operation; rendered by assets/vehicles.js.
+// Zone colors follow the source report's coding (red → green by share of
+// requests) and were stepped to pass the categorical palette checks.
+// Zone coordinates mark the area as a whole, not a specific address; street
+// navigation links are built from the street name instead.
+// ---------------------------------------------------------------------------
+var abandonedVehiclesReport = {
+  title: "גרוטאות רכב ורכבים נטושים בעיר לוד",
+  subtitle: "תמונת מצב עירונית · נובמבר 2026",
+  sidebarTitle: "🚗 רכבים נטושים וגרוטאות",
+  sidebarHint: "לחיצה על אזור או מוקד ממקדת את המפה · ניווט לכל רחוב לפי כתובת",
+  searchPlaceholder: "חיפוש רחוב או שכונה (רגבים, דקר, סן מרטין)...",
+  total: { value: "121", label: "סה״כ פניות במערכת", caption: "פניות על רכבים נטושים וגרוטאות רכב ברחבי העיר" },
+  kpis: [
+    { icon: "🗓️", label: "פניות שנפתחו בחודש נובמבר", value: "כ-20" },
+    { icon: "🛠️", label: "פניות בטיפול", value: "מרבית הפניות" },
+    { icon: "🔁", label: "פניות חוזרות בגין אותם רכבים", value: "מספר רב" },
+    { icon: "📍", label: "שכונות עם ריכוז פניות גבוה", value: "גני אביב · מרכז העיר · השכונות החדשות" }
+  ],
+  zones: [
+    {
+      key: "ganei_aviv",
+      name: "גני אביב",
+      share: 35,
+      color: "#b42318",
+      ink: "#ffffff",
+      chartNote: "צמרות, רגבים, יערות הכרמל",
+      hotspots: ["רגבים", "צמרות", "יערות הכרמל", "תלמים"],
+      lat: 31.9615,
+      lng: 34.8795
+    },
+    {
+      key: "city_center",
+      name: "מרכז העיר",
+      share: 30,
+      color: "#e8641c",
+      ink: "#ffffff",
+      chartNote: "דקר, שבט זבולון, שבט יהודה, דוד המלך",
+      hotspots: ["שבט זבולון", "שבט יהודה", "דקר", "ארלוזורוב", "דוד המלך"],
+      lat: 31.949,
+      lng: 34.8878
+    },
+    {
+      key: "new_neighborhoods",
+      name: "שכונות חדשות",
+      share: 20,
+      color: "#deaa00",
+      ink: "#0b0b0b",
+      chartNote: "אלברט איינשטיין, סן מרטין, זלמן ארן",
+      hotspots: ["אלברט איינשטיין", "סן מרטין", "זלמן ארן", "יער אמציה"],
+      lat: 31.9447,
+      lng: 34.8938
+    },
+    {
+      key: "other",
+      name: "יתר אזורי העיר",
+      share: 15,
+      color: "#008a17",
+      ink: "#ffffff",
+      chartNote: "",
+      hotspots: [],
+      lat: null,
+      lng: null
+    }
+  ],
+  complaintTypes: [
+    { icon: "🚗", label: "רכב נטוש זמן ממושך", share: 55 },
+    { icon: "🅿️", label: "מצוקת חניה עקב רכב נטוש", share: 25 },
+    { icon: "🔩", label: "גרוטאות רכב ללא שימוש", share: 10 },
+    { icon: "🏍️", label: "אופנועים / נגררים נטושים", share: 5 },
+    { icon: "🚫", label: "רכבים ללא לוחיות או לאחר תאונה", share: 5 }
+  ],
+  discussionQuestions: [
+    "כמה רכבים פונו בפועל מתחילת שנת 2026?",
+    "מהו זמן הטיפול הממוצע מרגע פתיחת פנייה ועד לפינוי הרכב?",
+    "כמה רכבים נמצאים כיום לאחר הדבקת התראה ולפני גרירה?",
+    "האם נדרש מבצע עירוני מרוכז לאיתור ופינוי גרוטאות רכב?",
+    "האם כוח האדם הקיים בפיקוח העירוני מספק למענה להיקף הפניות?"
+  ],
+  controlBoard: [
+    { metric: "סה״כ פניות פתוחות", value: "121" },
+    { metric: "שכונות בריכוז גבוה", value: "גני אביב, מרכז העיר" },
+    { metric: "פניות חוזרות", value: "גבוה", flagged: true },
+    { metric: "תלונות על מצוקת חניה", value: "משמעותיות", flagged: true },
+    { metric: "רכבים המדווחים מעל 6 חודשים", value: "עשרות" },
+    { metric: "כלי רכב ללא מספר רישוי / גרוטאות", value: "קיימים במספר מוקדים" }
+  ],
+  summary: "ניתוח הפניות מעלה כי תופעת הרכבים הנטושים וגרוטאות הרכב ממשיכה להיות מפגע עירוני משמעותי. עיקר התלונות מתרכזות במספר שכונות, כאשר מרבית הפניות נוגעות לרכבים שאינם זזים תקופה ממושכת. עולה גם פגיעה משמעותית באיכות החיים של התושבים ובזמינות החניה."
+};

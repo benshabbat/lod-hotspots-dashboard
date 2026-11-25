@@ -24,7 +24,7 @@
       <div class="header-right">
         <div class="city-logo">עיריית לוד</div>
         <div class="header-titles">
-          <h1>מפת נקודות חמות ואירועים חריגים</h1>
+          <h1 id="headerTitle">מפת נקודות חמות ואירועים חריגים</h1>
           <p id="headerSubtitle">מוקד רואה וביטחון עירוני | סיכום מבצע יום הכיפורים 2026 (ערב ומהלך החג)</p>
         </div>
       </div>
@@ -38,6 +38,18 @@
         <button class="btn-header btn-whatsapp" onclick="shareSummaryWhatsApp()">💬 שיתוף</button>
       </div>
     </header>
+
+    <!-- Dashboard areas: each area is independent (own map layer, filters and report) -->
+    <nav class="module-nav" aria-label="אזורי הדשבורד">
+      <div class="module-tabs" role="group">
+        <button class="module-tab active" data-module="kippur" aria-pressed="true" onclick="switchModule('kippur')">
+          <span aria-hidden="true">📍</span>מבצע יום הכיפורים
+        </button>
+        <button class="module-tab" data-module="vehicles" aria-pressed="false" onclick="switchModule('vehicles')">
+          <span aria-hidden="true">🚗</span>רכבים נטושים וגרוטאות
+        </button>
+      </div>
+    </nav>
 
     <!-- Main Workspace -->
     <main class="app-main">
@@ -67,7 +79,7 @@
             <h2 id="sidebarTitle">📋 אירועים – יום הכיפורים 2026</h2>
             <span class="visible-counter" id="visibleCounter">13 אירועים · 3 דיווחים</span>
           </div>
-          <p>לחיצה על שורה מדגישה אותה וממקדת את המפה עם ניווט מהיר</p>
+          <p id="sidebarHint">לחיצה על שורה מדגישה אותה וממקדת את המפה עם ניווט מהיר</p>
           <div class="search-box">
             <span class="search-icon">🔍</span>
             <input type="text" id="searchInput" class="search-input" placeholder="חיפוש רחוב, אירוע או שכונה (איילון, שלמה המלך, סוס, חסימה)..." oninput="handleSearch(this.value)">
@@ -78,6 +90,9 @@
         <div class="tables-scroll-container" id="tablesContainer">
           <!-- Dynamically populated or grouped categories -->
         </div>
+
+        <!-- Abandoned vehicles & car scrap report (rendered by assets/vehicles.js) -->
+        <div class="tables-scroll-container vehicles-report" id="vehiclesReport"></div>
       </aside>
 
     </main>
@@ -112,6 +127,7 @@
 
   </div>
   <script src="assets/data.js"></script>
+  <script src="assets/vehicles.js"></script>
   <script src="assets/app.js"></script>
 </body>
 </html>

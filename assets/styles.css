@@ -1,4 +1,5 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --module-nav-h: 42px; --vr-accent: #2563eb; }
     
     html, body {
       width: 100%;
@@ -122,8 +123,8 @@
     .app-main {
       flex: 1;
       display: flex;
-      height: calc(100vh - 56px);
-      height: calc(100dvh - 56px);
+      height: calc(100vh - 56px - var(--module-nav-h));
+      height: calc(100dvh - 56px - var(--module-nav-h));
       width: 100%;
       overflow: hidden;
       position: relative;
@@ -1019,12 +1020,416 @@
       background: #0284c7;
     }
 
+
+    /* ===== Dashboard areas (module switcher) ===== */
+    .module-nav {
+      height: var(--module-nav-h);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      background: #0d1730;
+      border-bottom: 1px solid rgba(96,165,250,0.35);
+      z-index: 999;
+    }
+    .module-tabs {
+      display: inline-flex;
+      gap: 4px;
+      padding: 3px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .module-tab {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 28px;
+      padding: 0 14px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: #bfdbfe;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 800;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    }
+    .module-tab:hover { background: rgba(255,255,255,0.1); color: #ffffff; }
+    .module-tab:focus-visible { outline: 2px solid #93c5fd; outline-offset: 1px; }
+    .module-tab.active {
+      background: #ffffff;
+      color: #1d4ed8;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+    body.module-vehicles .year-switcher { display: none; }
+
+    /* ===== Abandoned vehicles & car scrap ===== */
+    .vehicles-report { display: none; }
+    body.module-vehicles .vehicles-report { display: flex; }
+    body.module-vehicles #tablesContainer { display: none; }
+
+    .vr-section {
+      background: #ffffff;
+      border: 1px solid #e1e7f0;
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 2px 8px rgba(15,23,42,0.05);
+    }
+    .vr-section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .vr-section-head h3 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #0f172a;
+      font-size: 14px;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+    .vr-h-icon {
+      width: 30px;
+      height: 30px;
+      flex: 0 0 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9px;
+      background: #eff6ff;
+      box-shadow: inset 0 0 0 1px rgba(15,23,42,0.08);
+      font-size: 15px;
+    }
+    .vr-pill {
+      flex: 0 0 auto;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: #e9eef6;
+      color: #475569;
+      font-size: 10.5px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .vr-section-sub {
+      margin-top: 6px;
+      color: #64748b;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+
+    /* Overview: hero figure + KPI tiles */
+    .vr-hero {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 12px;
+      padding: 14px 18px;
+      border-radius: 12px;
+      background: linear-gradient(120deg, #0b1329 0%, #1e3a8a 100%);
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(15,47,118,0.22);
+    }
+    .vr-hero-value {
+      font-size: 54px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+    .vr-hero-copy strong { display: block; font-size: 15px; font-weight: 900; }
+    .vr-hero-copy span { display: block; margin-top: 3px; color: #bfdbfe; font-size: 11.5px; font-weight: 700; line-height: 1.35; }
+    .vr-kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .vr-kpi {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 10px 11px;
+      border: 1px solid #e9eef6;
+      border-radius: 11px;
+      background: #f8fafc;
+    }
+    .vr-kpi-wide { grid-column: 1 / -1; }
+    .vr-kpi-icon {
+      width: 30px;
+      height: 30px;
+      flex: 0 0 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9px;
+      background: #ffffff;
+      box-shadow: inset 0 0 0 1px rgba(15,23,42,0.08);
+      font-size: 15px;
+    }
+    .vr-kpi-copy { min-width: 0; }
+    .vr-kpi-label { display: block; color: #64748b; font-size: 11px; font-weight: 700; line-height: 1.3; }
+    .vr-kpi-value { display: block; margin-top: 2px; color: #0f172a; font-size: 15px; font-weight: 900; line-height: 1.25; }
+
+    /* Horizontal bar charts (bars grow from the right, value at the tip) */
+    .vr-bars { display: flex; flex-direction: column; gap: 2px; margin-top: 10px; }
+    .vr-bar-row {
+      padding: 7px 8px;
+      border-radius: 9px;
+      transition: background 0.15s, opacity 0.2s, box-shadow 0.15s;
+      outline: none;
+    }
+    .vr-bar-row.is-clickable { cursor: pointer; }
+    .vr-bar-row:hover { background: #f1f5fb; }
+    .vr-bar-row:focus-visible { background: #f1f5fb; box-shadow: inset 0 0 0 2px rgba(37,99,235,0.35); }
+    .vr-bar-row.vr-active { background: #eef4ff; box-shadow: inset 0 0 0 1.5px #93c5fd; }
+    .vr-bar-row.is-dimmed { opacity: 0.38; }
+    .vr-bar-head {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: #0f172a;
+      font-size: 12.5px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+    .vr-swatch { width: 10px; height: 10px; flex: 0 0 10px; border-radius: 3px; }
+    .vr-type-icon { width: 18px; flex: 0 0 18px; text-align: center; font-size: 13px; }
+    .vr-bar-line { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
+    .vr-bar-fill {
+      display: block;
+      height: 14px;
+      min-width: 4px;
+      background: var(--fill, var(--vr-accent));
+      border-start-end-radius: 4px;
+      border-end-end-radius: 4px;
+      transition: filter 0.15s;
+    }
+    .vr-bar-row:hover .vr-bar-fill,
+    .vr-bar-row:focus-visible .vr-bar-fill { filter: brightness(1.1); }
+    .vr-bar-value { color: #0f172a; font-size: 13px; font-weight: 900; white-space: nowrap; }
+    .vr-bar-note { margin-top: 4px; color: #64748b; font-size: 11px; font-weight: 600; line-height: 1.35; }
+
+    /* Hotspots grouped by zone */
+    .vr-zone-groups { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+    .vr-zone-group {
+      border: 1px solid #e1e7f0;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #ffffff;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .vr-zone-group.vr-active {
+      border-color: var(--zone);
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.12), 0 8px 20px rgba(15,23,42,0.1);
+    }
+    .vr-zone-head {
+      position: relative;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px 9px 10px;
+      border: 0;
+      border-bottom: 1px solid #edf1f6;
+      background: #f8fafc;
+      font-family: inherit;
+      text-align: right;
+      cursor: pointer;
+    }
+    .vr-zone-head::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 0 auto;
+      width: 4px;
+      background: var(--zone);
+    }
+    .vr-zone-head:hover { background: #f1f5fb; }
+    .vr-zone-head:focus-visible { outline: 2px solid rgba(37,99,235,0.4); outline-offset: -2px; }
+    .vr-zone-head strong { color: #0f172a; font-size: 13px; font-weight: 900; }
+    .vr-zone-meta {
+      margin-right: auto;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #e9eef6;
+      color: #475569;
+      font-size: 10.5px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .vr-street-list { list-style: none; padding: 3px 0; }
+    .vr-street {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 4px 10px 4px 8px;
+      transition: background 0.15s;
+    }
+    .vr-street + .vr-street { border-top: 1px solid #f1f4f9; }
+    .vr-street.vr-active { background: #eef4ff; }
+    .vr-street-main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 2px;
+      border: 0;
+      border-radius: 6px;
+      background: none;
+      color: #0f172a;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 800;
+      text-align: right;
+      cursor: pointer;
+    }
+    .vr-street-main:hover .vr-street-name { color: #1d4ed8; }
+    .vr-street-main:focus-visible { outline: 2px solid rgba(37,99,235,0.4); }
+    .vr-street-pin { font-size: 12px; }
+    .vr-street-links { display: flex; gap: 6px; flex-shrink: 0; }
+    .vr-street-links .act-link { margin: 0; padding: 4px 8px; border-radius: 7px; font-size: 10.8px; }
+    .vr-hotspots .no-results { margin-top: 12px; }
+
+    /* Discussion questions */
+    .vr-questions { list-style: none; display: flex; flex-direction: column; gap: 7px; margin-top: 12px; }
+    .vr-questions li {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 9px 10px;
+      border: 1px solid #e9eef6;
+      border-radius: 10px;
+      background: #f8fafc;
+      color: #1e293b;
+      font-size: 12.5px;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+    .vr-q-num {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: #1d4ed8;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    /* Management control board */
+    .vr-table {
+      width: 100%;
+      margin-top: 12px;
+      border: 1px solid #e1e7f0;
+      border-radius: 10px;
+      border-collapse: separate;
+      border-spacing: 0;
+      overflow: hidden;
+      font-size: 12px;
+    }
+    .vr-table thead th {
+      padding: 8px 11px;
+      background: #0f2f76;
+      color: #ffffff;
+      font-size: 11.5px;
+      font-weight: 900;
+      text-align: right;
+    }
+    .vr-table tbody th {
+      width: 55%;
+      padding: 9px 11px;
+      color: #334155;
+      font-weight: 800;
+      text-align: right;
+      vertical-align: middle;
+    }
+    .vr-table td { padding: 9px 11px; color: #0f172a; font-weight: 900; vertical-align: middle; }
+    .vr-table tbody tr:nth-child(even) { background: #f8fafc; }
+    .vr-table tbody tr + tr > * { border-top: 1px solid #edf1f6; }
+    .vr-level {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border: 1px solid #fed7aa;
+      border-radius: 999px;
+      background: #fff4ec;
+      color: #9a3412;
+      font-size: 11.5px;
+      font-weight: 900;
+    }
+
+    /* Closing message */
+    .vr-summary {
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #0f2f76 0%, #1d4ed8 100%);
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(29,78,216,0.25);
+    }
+    .vr-summary-title { display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 900; }
+    .vr-summary p { margin-top: 7px; color: #e0ecff; font-size: 12.5px; font-weight: 600; line-height: 1.65; }
+
+    /* Chart tooltip */
+    .vr-tooltip {
+      position: fixed;
+      z-index: 3000;
+      max-width: 240px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #ffffff;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.3);
+      direction: rtl;
+      text-align: right;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, calc(-100% - 12px));
+      transition: opacity 0.12s;
+    }
+    .vr-tooltip.visible { opacity: 1; }
+    .vr-tooltip strong { display: block; font-size: 15px; font-weight: 900; line-height: 1.2; }
+    .vr-tooltip span { display: block; color: #cbd5e1; font-size: 11.5px; font-weight: 700; }
+    .vr-tooltip em { display: block; margin-top: 2px; color: #93c5fd; font-size: 10.5px; font-style: normal; font-weight: 700; }
+
+    /* Map: zone pins, chips, legend */
+    .vehicle-zone-pin .pin-radar-ring { border-color: var(--zone); }
+    .vehicle-zone-pin .pin-badge-container { border-color: var(--zone); }
+    .vehicle-zone-pin .pin-icon-circle { background: var(--zone); }
+    .pin-day-badge.zone-share-badge { background: var(--zone); color: var(--zone-ink, #ffffff); }
+    .vehicle-popup-header { background: #0f172a; border-bottom: 3px solid var(--zone); }
+    .chip-dot {
+      width: 9px;
+      height: 9px;
+      flex: 0 0 9px;
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.85);
+    }
+    .legend-note {
+      margin-top: 3px;
+      padding-top: 4px;
+      border-top: 1px dashed #cbd5e1;
+      color: #64748b;
+      font-size: 10.5px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
     /* RESPONSIVE BREAKPOINTS */
     @media (max-width: 992px) {
       .app-main {
         flex-direction: column;
-        height: calc(100vh - 56px - 56px);
-        height: calc(100dvh - 56px - 56px);
+        height: calc(100vh - 56px - 56px - var(--module-nav-h));
+        height: calc(100dvh - 56px - 56px - var(--module-nav-h));
       }
       .sidebar-view {
         width: 100%;
@@ -1163,4 +1568,23 @@
       .event-card .action-links { width: 100%; }
       .event-card .act-link { flex: 1; justify-content: center; }
       .drawer-actions { flex-direction: column; }
+    }
+
+    /* Dashboard areas & abandoned vehicles – small screens */
+    @media (max-width: 600px) {
+      :root { --module-nav-h: 40px; }
+      .module-nav { padding: 0 7px; }
+      .module-tabs { width: 100%; }
+      .module-tab { flex: 1; padding: 0 8px; font-size: 12px; }
+      .vr-section { padding: 12px; }
+      .vr-hero { padding: 12px 14px; gap: 13px; }
+      .vr-hero-value { font-size: 48px; }
+      .vr-street { flex-wrap: wrap; row-gap: 2px; }
+      .vr-street-links .act-link { min-height: 28px; }
+    }
+
+    @media (max-width: 360px) {
+      .module-tab { font-size: 11px; padding: 0 5px; gap: 4px; }
+      .vr-kpi-grid { grid-template-columns: 1fr; }
+      .vr-section-head { flex-wrap: wrap; }
     }
