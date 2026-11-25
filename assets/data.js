@@ -817,17 +817,63 @@ var dashboardYears = {
 // ---------------------------------------------------------------------------
 var abandonedVehiclesReport = {
   title: "גרוטאות רכב ורכבים נטושים בעיר לוד",
-  subtitle: "תמונת מצב עירונית · נובמבר 2026",
+  subtitle: "תמונת מצב עירונית · נכון ל-17/11/2026",
   sidebarTitle: "🚗 רכבים נטושים וגרוטאות",
   sidebarHint: "לחיצה על אזור או מוקד ממקדת את המפה · ניווט לכל רחוב לפי כתובת",
   searchPlaceholder: "חיפוש רחוב או שכונה (רגבים, דקר, סן מרטין)...",
-  total: { value: "121", label: "סה״כ פניות במערכת", caption: "פניות על רכבים נטושים וגרוטאות רכב ברחבי העיר" },
+  hazard: {
+    title: "מפגע רכבים נטושים",
+    lead: "רכבים נטושים מהווים מפגע במספר היבטים מרכזיים:",
+    aspects: [
+      { icon: "🏙️", title: "חזותי וציבורי", text: "פוגעים במראה העיר, בתחושת הביטחון ובאיכות החיים של התושבים." },
+      { icon: "🛡️", title: "ביטחוני", text: "מעוררים חשד ועלולים לשמש להסתרת חפצים מסוכנים." },
+      { icon: "🚧", title: "בטיחותי", text: "חוסמים שדה ראייה, תופסים מקומות חניה ועלולים לגרום לסיכון למשתמשי הדרך." },
+      { icon: "🗑️", title: "תברואתי וסביבתי", text: "גורמים להצטברות אשפה, מזיקים וזיהום סביבתי." }
+    ],
+    summary: "רכבים נטושים פוגעים במרחב הציבורי ובאיכות חיי התושבים, ולכן יש לפעול לאיתורם ולסילוקם בהקדם."
+  },
+  total: { value: "121", label: "סה״כ פניות במערכת", caption: "כל הפניות פתוחות · רכבים נטושים וגרוטאות רכב ברחבי העיר" },
+  // Figures below marked "נתוני המוקד" were counted from the municipal call-center
+  // request list of 17/11/2026 (date, status and street only – no personal details).
+  source: "מקור: רשימת פניות המוקד העירוני (גרוטאת רכב / רכב נטוש), נכון ל-17/11/2026",
+  stats: { inTreatment: 73, pending: 48, november: 19, over30Days: 76, over60Days: 32 },
   kpis: [
-    { icon: "🗓️", label: "פניות שנפתחו בחודש נובמבר", value: "כ-20" },
-    { icon: "🛠️", label: "פניות בטיפול", value: "מרבית הפניות" },
+    { icon: "🛠️", label: "פניות בטיפול", value: "73 (60%)" },
+    { icon: "📥", label: "נפתחו במוקד וטרם עברו לטיפול", value: "48 (40%)" },
+    { icon: "🗓️", label: "פניות שנפתחו בנובמבר", value: "19 (עד 17 בנובמבר)" },
+    { icon: "⏳", label: "פניות פתוחות מעל 30 יום", value: "76 (מתוכן 32 מעל 60 יום)" },
     { icon: "🔁", label: "פניות חוזרות בגין אותם רכבים", value: "מספר רב" },
     { icon: "📍", label: "שכונות עם ריכוז פניות גבוה", value: "גני אביב · מרכז העיר · השכונות החדשות" }
   ],
+  // Open requests by the month they were opened, split by status (sums to 121).
+  monthly: [
+    { label: "אוגוסט", inTreatment: 3, pending: 0, note: "מאז 27 באוגוסט" },
+    { label: "ספטמבר", inTreatment: 27, pending: 15, note: "19 מהן נפתחו ביום אחד (15 בספטמבר)" },
+    { label: "אוקטובר", inTreatment: 33, pending: 24, note: "" },
+    { label: "נובמבר", inTreatment: 10, pending: 9, note: "עד 17 בנובמבר" }
+  ],
+  topStreets: [
+    { street: "אלברט איינשטיין", count: 6 },
+    { street: "דיזראעלי", count: 5 },
+    { street: "צמרות", count: 3 },
+    { street: "דקר", count: 3 },
+    { street: "שבט זבולון", count: 3 },
+    { street: "יערות הכרמל", count: 3 },
+    { street: "התקווה", count: 3 }
+  ],
+  topStreetsNote: "ועוד 19 רחובות עם 2 פניות · הפניות פרוסות על 83 רחובות",
+  // Open requests per hotspot street (call-center list, 17/11/2026).
+  requestCounts: {
+    "רגבים": 2, "צמרות": 3, "יערות הכרמל": 3, "תלמים": 1,
+    "שבט זבולון": 3, "שבט יהודה": 2, "דקר": 3, "ארלוזורוב": 2, "דוד המלך": 1,
+    "אלברט איינשטיין": 6, "סן מרטין": 2, "זלמן ארן": 1, "יער אמציה": 2,
+    "דיזראעלי": 5, "התקווה": 3
+  },
+  // Streets with many requests that are not on the zone lists; their zone is not stated.
+  extraHotspots: {
+    title: "מוקדים נוספים לפי נתוני המוקד",
+    streets: ["דיזראעלי", "התקווה"]
+  },
   zones: [
     {
       key: "ganei_aviv",

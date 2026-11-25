@@ -33,7 +33,14 @@ function findVehicleZone(zoneKey) {
 }
 
 function vehicleHotspotCount() {
-  return vehicleZones().reduce(function(total, zone) { return total + zone.hotspots.length; }, 0);
+  var extra = abandonedVehiclesReport.extraHotspots ? abandonedVehiclesReport.extraHotspots.streets.length : 0;
+  return vehicleZones().reduce(function(total, zone) { return total + zone.hotspots.length; }, extra);
+}
+
+function requestCountLabel(street) {
+  var count = (abandonedVehiclesReport.requestCounts || {})[street];
+  if (!count) return '';
+  return count === 1 ? 'פנייה אחת' : count + ' פניות';
 }
 
 function streetMapsUrl(street) {
@@ -293,18 +300,20 @@ function sectionHead(icon, title, pill) {
 // One horizontal bar per row, growing from the right (RTL baseline), value at the tip.
 function barRowHtml(options) {
   var ratio = (options.share / options.maxShare).toFixed(4);
+  var valueText = options.valueText || options.share + '%';
+  var reserve = options.reserve || 46;
   var interactive = options.onSelect
     ? ` tabindex="0" role="button" onclick="${options.onSelect}"
         onkeydown="if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); ${options.onSelect}; }"`
     : ' tabindex="0"';
   return `
     <div class="vr-bar-row ${options.className || ''}${options.onSelect ? ' is-clickable' : ''}"${options.zoneKey ? ` data-zone="${options.zoneKey}"` : ''}${interactive}
-      data-tip-value="${options.share}%" data-tip-label="${escapeHtml(options.label)}" data-tip-extra="${escapeHtml(options.tipExtra || '')}"
-      aria-label="${escapeHtml(options.label)}: ${options.share}%">
+      data-tip-value="${escapeHtml(valueText)}" data-tip-label="${escapeHtml(options.label)}" data-tip-extra="${escapeHtml(options.tipExtra || '')}"
+      aria-label="${escapeHtml(options.label)}: ${escapeHtml(valueText)}">
       <div class="vr-bar-head">${options.marker}<span class="vr-bar-name">${escapeHtml(options.label)}</span></div>
       <div class="vr-bar-line">
-        <span class="vr-bar-fill" style="--fill:${options.color}; width:calc((100% - 46px) * ${ratio});"></span>
-        <span class="vr-bar-value">${options.share}%</span>
+        <span class="vr-bar-fill" style="--fill:${options.color}; width:calc((100% - ${reserve}px) * ${ratio});"></span>
+        <span class="vr-bar-value">${escapeHtml(valueText)}</span>
       </div>
       ${options.note ? `<div class="vr-bar-note">${escapeHtml(options.note)}</div>` : ''}
     </div>`;
@@ -322,6 +331,13 @@ function buildVehiclesReport() {
           <span class="vr-kpi-label">${escapeHtml(kpi.label)}</span>
           <strong class="vr-kpi-value">${escapeHtml(kpi.value)}</strong>
         </div>
+      </div>`;
+  }).join('');
+
+  var hazardCards = report.hazard.aspects.map(function(aspect) {
+    return `<div class="vr-aspect">
+        <span class="vr-aspect-icon" aria-hidden="true">${aspect.icon}</span>
+        <div><strong>${escapeHtml(aspect.title)}</strong><p>${escapeHtml(aspect.text)}</p></div>
       </div>`;
   }).join('');
 
@@ -361,6 +377,7 @@ function buildVehiclesReport() {
       return `<li class="vr-street" data-zone="${zone.key}" data-street="${escapeHtml(street)}" data-search="${escapeHtml(searchText)}">
           <button type="button" class="vr-street-main" onclick="selectZone('${zone.key}', 'table', this.closest('.vr-street'))">
             <span class="vr-street-pin" aria-hidden="true">📍</span><span class="vr-street-name">${escapeHtml(street)}</span>
+            ${requestCountLabel(street) ? `<span class="vr-street-count">${requestCountLabel(street)}</span>` : ''}
           </button>
           <span class="vr-street-links">
             <a href="${streetMapsUrl(street)}" target="_blank" rel="noopener" class="act-link">📍 Google Maps</a>
@@ -378,6 +395,67 @@ function buildVehiclesReport() {
       </div>`;
   }).join('');
 
+  var extraGroup = '';
+  if (report.extraHotspots && report.extraHotspots.streets.length) {
+    var extraStreets = report.extraHotspots.streets.map(function(street) {
+      return `<li class="vr-street" data-zone="extra" data-street="${escapeHtml(street)}" data-search="${escapeHtml(street.toLowerCase())}">
+          <span class="vr-street-main is-static">
+            <span class="vr-street-pin" aria-hidden="true">📍</span><span class="vr-street-name">${escapeHtml(street)}</span>
+            ${requestCountLabel(street) ? `<span class="vr-street-count">${requestCountLabel(street)}</span>` : ''}
+          </span>
+          <span class="vr-street-links">
+            <a href="${streetMapsUrl(street)}" target="_blank" rel="noopener" class="act-link">📍 Google Maps</a>
+            <a href="${streetWazeUrl(street)}" target="_blank" rel="noopener" class="act-link">🚗 Waze</a>
+          </span>
+        </li>`;
+    }).join('');
+    extraGroup = `<div class="vr-zone-group" data-zone="extra" style="--zone:#64748b;">
+        <div class="vr-zone-head is-static">
+          <span class="vr-swatch" style="background:#64748b;" aria-hidden="true"></span>
+          <strong>${escapeHtml(report.extraHotspots.title)}</strong>
+          <span class="vr-zone-meta">${report.extraHotspots.streets.length} מוקדים</span>
+        </div>
+        <ul class="vr-street-list">${extraStreets}</ul>
+      </div>`;
+  }
+
+  // Open requests by opening month, stacked by status (in treatment → not yet handled).
+  var maxMonthTotal = Math.max.apply(null, report.monthly.map(function(month) { return month.inTreatment + month.pending; }));
+  var monthRows = report.monthly.map(function(month) {
+    var total = month.inTreatment + month.pending;
+    var ratio = (total / maxMonthTotal).toFixed(4);
+    function segment(value, className) {
+      if (!value) return '';
+      var label = value / maxMonthTotal >= 0.12 ? value : '';
+      return `<span class="vr-seg ${className}" style="flex:${value} 1 0;">${label}</span>`;
+    }
+    var detail = month.inTreatment + ' בטיפול · ' + month.pending + ' טרם עברו לטיפול';
+    return `<div class="vr-bar-row vr-month-row" tabindex="0"
+        data-tip-value="${total} פניות" data-tip-label="${escapeHtml(month.label)}" data-tip-extra="${escapeHtml(detail)}"
+        aria-label="${escapeHtml(month.label)}: ${total} פניות, ${escapeHtml(detail)}">
+        <div class="vr-bar-head"><span class="vr-bar-name">${escapeHtml(month.label)}</span>${month.note ? `<span class="vr-bar-aside">${escapeHtml(month.note)}</span>` : ''}</div>
+        <div class="vr-bar-line">
+          <span class="vr-stack" style="width:calc((100% - 46px) * ${ratio});">${segment(month.inTreatment, 'seg-treatment')}${segment(month.pending, 'seg-pending')}</span>
+          <span class="vr-bar-value">${total}</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  var maxStreetCount = Math.max.apply(null, report.topStreets.map(function(item) { return item.count; }));
+  var streetBars = report.topStreets.map(function(item) {
+    return barRowHtml({
+      className: 'vr-street-bar',
+      label: item.street,
+      share: item.count,
+      maxShare: maxStreetCount,
+      valueText: item.count + ' פניות',
+      reserve: 66,
+      color: 'var(--vr-accent)',
+      marker: '<span class="vr-type-icon" aria-hidden="true">📍</span>',
+      tipExtra: 'פניות פתוחות ברחוב'
+    });
+  }).join('');
+
   var questions = report.discussionQuestions.map(function(question, index) {
     return `<li><span class="vr-q-num" aria-hidden="true">${index + 1}</span><span>${escapeHtml(question)}</span></li>`;
   }).join('');
@@ -390,6 +468,13 @@ function buildVehiclesReport() {
   }).join('');
 
   container.innerHTML = `
+    <section class="vr-section vr-hazard" data-search-hide>
+      ${sectionHead('⚠️', report.hazard.title, '')}
+      <p class="vr-hazard-lead">${escapeHtml(report.hazard.lead)}</p>
+      <div class="vr-aspects">${hazardCards}</div>
+      <div class="vr-hazard-summary"><strong>לסיכום:</strong> ${escapeHtml(report.hazard.summary)}</div>
+    </section>
+
     <section class="vr-section vr-overview" data-search-hide>
       ${sectionHead('📊', 'נתונים כלליים', 'תמונת מצב עירונית')}
       <div class="vr-hero">
@@ -400,6 +485,17 @@ function buildVehiclesReport() {
         </div>
       </div>
       <div class="vr-kpi-grid">${kpiTiles}</div>
+      <p class="vr-source">${escapeHtml(report.source)}</p>
+    </section>
+
+    <section class="vr-section" data-search-hide>
+      ${sectionHead('📈', 'פניות פתוחות לפי חודש פתיחה', 'נתוני המוקד')}
+      <p class="vr-section-sub">הפניות הפתוחות כיום לפי החודש שבו נפתחו ולפי סטטוס הטיפול</p>
+      <div class="vr-legend">
+        <span><i class="seg-treatment" aria-hidden="true"></i>בטיפול (${report.stats.inTreatment})</span>
+        <span><i class="seg-pending" aria-hidden="true"></i>טרם עברו לטיפול (${report.stats.pending})</span>
+      </div>
+      <div class="vr-bars">${monthRows}</div>
     </section>
 
     <section class="vr-section" data-search-hide>
@@ -414,9 +510,16 @@ function buildVehiclesReport() {
       <div class="vr-bars">${typeBars}</div>
     </section>
 
+    <section class="vr-section" data-search-hide>
+      ${sectionHead('🏘️', 'רחובות עם הכי הרבה פניות', 'נתוני המוקד')}
+      <p class="vr-section-sub">מספר הפניות הפתוחות בכל רחוב</p>
+      <div class="vr-bars">${streetBars}</div>
+      <p class="vr-chart-foot">${escapeHtml(report.topStreetsNote)}</p>
+    </section>
+
     <section class="vr-section vr-hotspots" id="vrHotspots">
       ${sectionHead('🎯', 'מוקדים בולטים לטיפול', hotspotTotal + ' מוקדים')}
-      <div class="vr-zone-groups">${zoneGroups}</div>
+      <div class="vr-zone-groups">${zoneGroups}${extraGroup}</div>
       <div class="no-results" id="vrNoResults"><span class="no-results-icon">🔎</span><strong>לא נמצאו מוקדים</strong><br>נסו לחפש רחוב או שכונה אחרים</div>
     </section>
 
@@ -565,9 +668,11 @@ function shareVehiclesWhatsApp() {
   var hotspotLines = report.zones.filter(function(zone) { return zone.hotspots.length; }).map(function(zone) {
     return '• *' + zone.name + ':* ' + zone.hotspots.join(', ');
   }).join('\n');
+  if (report.extraHotspots) hotspotLines += '\n• *' + report.extraHotspots.title + ':* ' + report.extraHotspots.streets.join(', ');
 
   var text = `📢 *${report.title} – עיריית לוד*\n${report.subtitle}\n\n` +
-    `📥 ${report.total.label}: *${report.total.value}* (${report.kpis[0].value} נפתחו בנובמבר)\n` +
+    `📥 סה״כ פניות פתוחות: *${report.total.value}* · בטיפול ${report.stats.inTreatment} · טרם עברו לטיפול ${report.stats.pending}\n` +
+    `🗓️ נפתחו בנובמבר: ${report.stats.november} · ⏳ פתוחות מעל 30 יום: ${report.stats.over30Days}\n` +
     `📍 חלוקה לפי אזור: ${zoneSplit}\n` +
     `🚗 עיקר התלונות: ${mainTypes}\n\n` +
     `🎯 *מוקדים בולטים לטיפול:*\n${hotspotLines}\n\n` +
