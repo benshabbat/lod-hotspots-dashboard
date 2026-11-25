@@ -5,14 +5,12 @@
 
 var currentModule = 'kippur';
 var vehiclesLayer = null;
-var vehicleZoneMarkers = {};
-var vehicleZoneHalos = {};
+var vehicleStreetMarkers = {};
 var vehiclesTooltipReady = false;
+var vehiclesZoomListenerReady = false;
 
-// Circle area on the map is proportional to the zone's share of requests.
-var VEHICLE_HALO_METERS_PER_SQRT_SHARE = 65;
-var VEHICLE_HALO_STYLE = { weight: 2, opacity: 0.9, fillOpacity: 0.14 };
-var VEHICLE_HALO_ACTIVE_STYLE = { weight: 3.5, opacity: 1, fillOpacity: 0.26 };
+// Street names on the map appear from this zoom level (and on hover / selection).
+var VEHICLE_LABEL_MIN_ZOOM = 15;
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, function(character) {
@@ -24,17 +22,25 @@ function vehicleZones() {
   return abandonedVehiclesReport.zones;
 }
 
+// Zones that have hotspot streets on the map ("other areas" has none).
 function mappedVehicleZones() {
-  return vehicleZones().filter(function(zone) { return zone.lat !== null; });
+  return vehicleZones().filter(function(zone) { return zone.hotspots.length > 0; });
 }
 
 function findVehicleZone(zoneKey) {
   return vehicleZones().find(function(zone) { return zone.key === zoneKey; });
 }
 
+function findZoneOfStreet(street) {
+  return vehicleZones().find(function(zone) { return zone.hotspots.indexOf(street) !== -1; });
+}
+
+function streetLocation(street) {
+  return (abandonedVehiclesReport.streetLocations || {})[street] || null;
+}
+
 function vehicleHotspotCount() {
-  var extra = abandonedVehiclesReport.extraHotspots ? abandonedVehiclesReport.extraHotspots.streets.length : 0;
-  return vehicleZones().reduce(function(total, zone) { return total + zone.hotspots.length; }, extra);
+  return vehicleZones().reduce(function(total, zone) { return total + zone.hotspots.length; }, 0);
 }
 
 function requestCountLabel(street) {
@@ -51,12 +57,10 @@ function streetWazeUrl(street) {
   return 'https://waze.com/ul?q=' + encodeURIComponent(street + ' לוד') + '&navigate=yes';
 }
 
-function zoneMapsUrl(zone) {
-  return 'https://www.google.com/maps/search/?api=1&query=' + zone.lat + ',' + zone.lng;
-}
-
-function zoneWazeUrl(zone) {
-  return 'https://waze.com/ul?ll=' + zone.lat + ',' + zone.lng + '&navigate=yes';
+function findStreetRow(street) {
+  return Array.from(document.querySelectorAll('#vehiclesReport .vr-street')).find(function(row) {
+    return row.getAttribute('data-street') === street;
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -89,6 +93,8 @@ function switchModule(moduleKey) {
       vehiclesLayer.remove();
       vehiclesLayer = null;
     }
+    vehicleStreetMarkers = {};
+    updateStreetLabels();
     switchYear(currentYear);
   }
 
@@ -129,132 +135,145 @@ function enterVehiclesModule() {
 }
 
 // ---------------------------------------------------------------------------
-// Map
+// Map: one pin per hotspot street, in its zone's color, with its request count
 // ---------------------------------------------------------------------------
 
 function renderVehiclesMap() {
   if (vehiclesLayer) vehiclesLayer.remove();
   vehiclesLayer = L.layerGroup().addTo(map);
-  vehicleZoneMarkers = {};
-  vehicleZoneHalos = {};
+  vehicleStreetMarkers = {};
 
-  var isMobile = window.innerWidth <= 600;
-
-  mappedVehicleZones().forEach(function(zone) {
-    var halo = L.circle([zone.lat, zone.lng], Object.assign({
-      radius: VEHICLE_HALO_METERS_PER_SQRT_SHARE * Math.sqrt(zone.share),
-      color: zone.color,
-      fillColor: zone.color,
-      interactive: false
-    }, VEHICLE_HALO_STYLE));
-
-    var iconHtml = `
-      <div class="custom-incident-pin vehicle-zone-pin" id="pin-zone-${zone.key}" style="--zone:${zone.color}; --zone-ink:${zone.ink};">
-        <div class="pin-radar-ring"></div>
-        <div class="pin-badge-container">
-          <div class="pin-icon-circle">🚗</div>
-          <div class="pin-texts">
-            <div class="pin-title-row">
-              <span class="pin-day-badge zone-share-badge">${zone.share}%</span>
-              <span class="pin-title-text">${escapeHtml(zone.name)}</span>
-            </div>
-            <div class="pin-event-text">${zone.hotspots.length} מוקדים לטיפול</div>
-          </div>
-        </div>
-      </div>
-    `;
-
-    var icon = L.divIcon({
-      html: iconHtml,
-      className: 'leaflet-incident-div-icon vehicle-zone-icon',
-      iconSize: isMobile ? [36, 36] : [170, 44],
-      iconAnchor: isMobile ? [18, 18] : [85, 22],
-      popupAnchor: [0, -22]
-    });
-
-    var popupHtml = `
-      <div class="popup-header vehicle-popup-header" style="--zone:${zone.color};">
-        <span style="font-weight:900; font-size:12.5px;">🚗 רכבים נטושים וגרוטאות</span>
-        <span style="font-size:12px; font-weight:800;">${zone.share}% מהפניות</span>
-      </div>
-      <div class="popup-body">
-        <div class="popup-title">${escapeHtml(zone.name)}</div>
-        <div class="popup-loc">📍 ${zone.hotspots.length} מוקדים בולטים לטיפול</div>
-        <div class="popup-desc"><strong>מוקדים:</strong> ${escapeHtml(zone.hotspots.join(' · '))}<br>
-          <strong>הערה:</strong> הסימון מציין את האזור כולו – ניווט לרחוב מסוים מתוך רשימת המוקדים</div>
-        <div class="popup-actions">
-          <a href="${zoneMapsUrl(zone)}" target="_blank" rel="noopener" class="popup-btn">📍 Google Maps</a>
-          <a href="${zoneWazeUrl(zone)}" target="_blank" rel="noopener" class="popup-btn waze">🚗 Waze</a>
-        </div>
-      </div>
-    `;
-
-    var marker = L.marker([zone.lat, zone.lng], { icon: icon });
-    marker.on('click', function(clickEvent) {
-      L.DomEvent.stopPropagation(clickEvent);
-      selectZone(zone.key, 'map');
-    });
-    marker.bindPopup(popupHtml);
-
-    halo.addTo(vehiclesLayer);
-    marker.addTo(vehiclesLayer);
-    vehicleZoneHalos[zone.key] = halo;
-    vehicleZoneMarkers[zone.key] = marker;
-  });
-}
-
-function resetVehicleHalos() {
-  Object.values(vehicleZoneHalos).forEach(function(halo) { halo.setStyle(VEHICLE_HALO_STYLE); });
-}
-
-function selectZone(zoneKey, source, streetElement) {
-  var zone = findVehicleZone(zoneKey);
-  var marker = vehicleZoneMarkers[zoneKey];
-  if (!zone || !marker) return;
-
-  // A zone hidden by the active zone filter is brought back before focusing it
-  // (without re-fitting the map, which would cancel the zoom below).
-  if (!vehiclesLayer.hasLayer(marker)) {
-    currentFilter = 'all';
-    document.querySelectorAll('.chip').forEach(function(chip) {
-      chip.classList.toggle('active', chip.getAttribute('data-filter') === 'all');
-    });
-    updateVehiclesVisibility({ keepView: true });
+  if (!vehiclesZoomListenerReady) {
+    vehiclesZoomListenerReady = true;
+    map.on('zoomend', updateStreetLabels);
   }
 
+  mappedVehicleZones().forEach(function(zone) {
+    zone.hotspots.forEach(function(street) {
+      var location = streetLocation(street);
+      if (!location) return;
+      var count = (abandonedVehiclesReport.requestCounts || {})[street] || '';
+      var countText = requestCountLabel(street);
+
+      var icon = L.divIcon({
+        html: `<div class="vehicle-street-pin" style="--zone:${zone.color}; --zone-ink:${zone.ink};">
+            <span class="street-pin-dot">${count}</span>
+            <span class="street-pin-label">${escapeHtml(street)}</span>
+          </div>`,
+        className: 'leaflet-incident-div-icon vehicle-street-icon',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        popupAnchor: [0, -16]
+      });
+
+      var popupHtml = `
+        <div class="popup-header vehicle-popup-header" style="--zone:${zone.color};">
+          <span style="font-weight:900; font-size:12.5px;">🚗 רכבים נטושים · ${escapeHtml(zone.name)}</span>
+          <span style="font-size:12px; font-weight:800;">${escapeHtml(countText)}</span>
+        </div>
+        <div class="popup-body">
+          <div class="popup-title">${escapeHtml(street)}</div>
+          <div class="popup-loc">📍 ${escapeHtml(zone.name)} · ${zone.share}% מפניות העיר</div>
+          <div class="popup-desc"><strong>פניות פתוחות ברחוב:</strong> ${escapeHtml(countText || '—')}<br>
+            <strong>הערה:</strong> הסימון מציין את הרחוב ולא כתובת מסוימת</div>
+          <div class="popup-actions">
+            <a href="${streetMapsUrl(street)}" target="_blank" rel="noopener" class="popup-btn">📍 Google Maps</a>
+            <a href="${streetWazeUrl(street)}" target="_blank" rel="noopener" class="popup-btn waze">🚗 Waze</a>
+          </div>
+        </div>
+      `;
+
+      var marker = L.marker([location.lat, location.lng], { icon: icon, title: street, riseOnHover: true });
+      marker.on('click', function(clickEvent) {
+        L.DomEvent.stopPropagation(clickEvent);
+        selectStreet(street, 'map');
+      });
+      marker.bindPopup(popupHtml);
+      marker.addTo(vehiclesLayer);
+      vehicleStreetMarkers[street] = marker;
+    });
+  });
+
+  updateStreetLabels();
+}
+
+function updateStreetLabels() {
+  var showLabels = currentModule === 'vehicles' && map.getZoom() >= VEHICLE_LABEL_MIN_ZOOM;
+  map.getContainer().classList.toggle('vr-show-street-labels', showLabels);
+}
+
+// Fit the map to the street pins that are currently shown.
+function fitVehiclesView() {
+  var zoneFilter = currentFilter.indexOf('zone:') === 0;
+  var visibleMarkers = Object.values(vehicleStreetMarkers).filter(function(marker) {
+    return vehiclesLayer && vehiclesLayer.hasLayer(marker);
+  });
+  if (visibleMarkers.length && (zoneFilter || currentSearch)) {
+    map.fitBounds(L.featureGroup(visibleMarkers).getBounds(), { padding: [70, 70], maxZoom: 16 });
+  } else if (!zoneFilter && !currentSearch) {
+    fitLodBounds();
+  }
+}
+
+// Brings back every street (clears the zone filter and the search) without moving the map.
+function resetVehiclesFilters() {
+  currentFilter = 'all';
+  currentSearch = '';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').style.display = 'none';
+  document.querySelectorAll('.chip').forEach(function(chip) {
+    chip.classList.toggle('active', chip.getAttribute('data-filter') === 'all');
+  });
+  updateVehiclesVisibility({ keepView: true });
+}
+
+function selectStreet(street, source) {
+  var marker = vehicleStreetMarkers[street];
+  var zone = findZoneOfStreet(street);
+  if (!marker || !zone) return;
+  if (!vehiclesLayer.hasLayer(marker)) resetVehiclesFilters();
+
   clearActiveRow();
+  var row = findStreetRow(street);
+  if (row) {
+    row.classList.add('vr-active');
+    if (source === 'map') row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  var pinElement = marker.getElement();
+  if (pinElement) pinElement.classList.add('selected-pin');
+  map.setView(marker.getLatLng(), 16, { animate: true });
+
+  if (window.innerWidth <= 992) {
+    openStreetDrawer(street, zone);
+    if (source === 'table') switchTab('map');
+  } else {
+    marker.openPopup();
+  }
+}
+
+// Selecting a zone filters the map and the hotspot list to that zone's streets.
+function selectZone(zoneKey, source) {
+  var chip = document.querySelector('.chip[data-filter="zone:' + zoneKey + '"]');
+  if (!chip) return;
+  applyFilter(chip, 'zone:' + zoneKey);
   document.querySelectorAll('#vehiclesReport [data-zone="' + zoneKey + '"]').forEach(function(element) {
     if (element.classList.contains('vr-zone-bar') || element.classList.contains('vr-zone-group')) {
       element.classList.add('vr-active');
     }
   });
-  if (streetElement) streetElement.classList.add('vr-active');
-
-  var pinElement = marker.getElement();
-  if (pinElement) pinElement.classList.add('selected-pin');
-  if (vehicleZoneHalos[zoneKey]) vehicleZoneHalos[zoneKey].setStyle(VEHICLE_HALO_ACTIVE_STYLE);
-  map.setView(marker.getLatLng(), 15, { animate: true });
-
-  if (window.innerWidth <= 992) {
-    openZoneDrawer(zone, streetElement ? streetElement.getAttribute('data-street') : null);
-    if (source === 'table') switchTab('map');
-  } else {
-    marker.openPopup();
-    if (source === 'map') {
-      var group = document.querySelector('#vehiclesReport .vr-zone-group[data-zone="' + zoneKey + '"]');
-      if (group) group.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
+  if (window.innerWidth <= 992 && source === 'table') {
+    switchTab('map');
+    setTimeout(fitVehiclesView, 150);
   }
 }
 
-function openZoneDrawer(zone, streetName) {
-  document.getElementById('drawerTitle').textContent = '🚗 ' + zone.name + ' · ' + zone.share + '% מהפניות';
-  document.getElementById('drawerLoc').textContent = streetName
-    ? '📍 מוקד לטיפול: ' + streetName
-    : '📍 ' + zone.hotspots.length + ' מוקדים בולטים לטיפול';
-  document.getElementById('drawerDesc').innerHTML = '<strong>מוקדים באזור:</strong> ' + escapeHtml(zone.hotspots.join(' · '));
-  document.getElementById('drawerGmapsBtn').href = streetName ? streetMapsUrl(streetName) : zoneMapsUrl(zone);
-  document.getElementById('drawerWazeBtn').href = streetName ? streetWazeUrl(streetName) : zoneWazeUrl(zone);
+function openStreetDrawer(street, zone) {
+  var countText = requestCountLabel(street);
+  document.getElementById('drawerTitle').textContent = '🚗 ' + street;
+  document.getElementById('drawerLoc').textContent = '📍 ' + zone.name + (countText ? ' · ' + countText + ' פתוחות' : '');
+  document.getElementById('drawerDesc').innerHTML = '<strong>הערה:</strong> הסימון מציין את הרחוב ולא כתובת מסוימת';
+  document.getElementById('drawerGmapsBtn').href = streetMapsUrl(street);
+  document.getElementById('drawerWazeBtn').href = streetWazeUrl(street);
   document.getElementById('mobileDrawer').style.display = 'block';
 }
 
@@ -277,11 +296,11 @@ function renderVehiclesChips() {
 function renderVehiclesLegend() {
   document.getElementById('legendTitle').innerText = 'מקרא – רכבים נטושים';
   var legendHtml = vehicleZones().map(function(zone) {
-    var mapped = zone.lat !== null;
+    var mapped = zone.hotspots.length > 0;
     return `<div class="legend-line"><span>${escapeHtml(zone.name)} · ${zone.share}%</span>
-      <div class="legend-icon" style="background:${zone.color}; color:${zone.ink}; border:1px solid ${zone.color};">${mapped ? '🚗' : '·'}</div></div>`;
+      <div class="legend-icon legend-zone-dot${mapped ? '' : ' is-unmapped'}" style="--zone:${zone.color};"></div></div>`;
   }).join('');
-  legendHtml += '<div class="legend-note">גודל העיגול = שיעור הפניות באזור · יתר אזורי העיר אינם מסומנים במפה</div>';
+  legendHtml += '<div class="legend-note">המספר בעיגול = פניות פתוחות ברחוב<br>שמות הרחובות מופיעים בהגדלה</div>';
   document.getElementById('legendItems').innerHTML = legendHtml;
   positionDesktopLegend();
 }
@@ -343,7 +362,7 @@ function buildVehiclesReport() {
 
   var maxZoneShare = Math.max.apply(null, report.zones.map(function(zone) { return zone.share; }));
   var zoneBars = report.zones.map(function(zone) {
-    var mapped = zone.lat !== null;
+    var mapped = zone.hotspots.length > 0;
     return barRowHtml({
       className: 'vr-zone-bar',
       zoneKey: zone.key,
@@ -373,9 +392,10 @@ function buildVehiclesReport() {
 
   var zoneGroups = report.zones.filter(function(zone) { return zone.hotspots.length; }).map(function(zone) {
     var streets = zone.hotspots.map(function(street) {
-      var searchText = (street + ' ' + zone.name).toLowerCase();
+      var location = streetLocation(street);
+      var searchText = (street + ' ' + zone.name + ' ' + (location && location.area ? location.area : '')).toLowerCase();
       return `<li class="vr-street" data-zone="${zone.key}" data-street="${escapeHtml(street)}" data-search="${escapeHtml(searchText)}">
-          <button type="button" class="vr-street-main" onclick="selectZone('${zone.key}', 'table', this.closest('.vr-street'))">
+          <button type="button" class="vr-street-main" onclick="selectStreet(this.closest('.vr-street').getAttribute('data-street'), 'table')">
             <span class="vr-street-pin" aria-hidden="true">📍</span><span class="vr-street-name">${escapeHtml(street)}</span>
             ${requestCountLabel(street) ? `<span class="vr-street-count">${requestCountLabel(street)}</span>` : ''}
           </button>
@@ -394,30 +414,6 @@ function buildVehiclesReport() {
         <ul class="vr-street-list">${streets}</ul>
       </div>`;
   }).join('');
-
-  var extraGroup = '';
-  if (report.extraHotspots && report.extraHotspots.streets.length) {
-    var extraStreets = report.extraHotspots.streets.map(function(street) {
-      return `<li class="vr-street" data-zone="extra" data-street="${escapeHtml(street)}" data-search="${escapeHtml(street.toLowerCase())}">
-          <span class="vr-street-main is-static">
-            <span class="vr-street-pin" aria-hidden="true">📍</span><span class="vr-street-name">${escapeHtml(street)}</span>
-            ${requestCountLabel(street) ? `<span class="vr-street-count">${requestCountLabel(street)}</span>` : ''}
-          </span>
-          <span class="vr-street-links">
-            <a href="${streetMapsUrl(street)}" target="_blank" rel="noopener" class="act-link">📍 Google Maps</a>
-            <a href="${streetWazeUrl(street)}" target="_blank" rel="noopener" class="act-link">🚗 Waze</a>
-          </span>
-        </li>`;
-    }).join('');
-    extraGroup = `<div class="vr-zone-group" data-zone="extra" style="--zone:#64748b;">
-        <div class="vr-zone-head is-static">
-          <span class="vr-swatch" style="background:#64748b;" aria-hidden="true"></span>
-          <strong>${escapeHtml(report.extraHotspots.title)}</strong>
-          <span class="vr-zone-meta">${report.extraHotspots.streets.length} מוקדים</span>
-        </div>
-        <ul class="vr-street-list">${extraStreets}</ul>
-      </div>`;
-  }
 
   // Open requests by opening month, stacked by status (in treatment → not yet handled).
   var maxMonthTotal = Math.max.apply(null, report.monthly.map(function(month) { return month.inTreatment + month.pending; }));
@@ -454,6 +450,16 @@ function buildVehiclesReport() {
       marker: '<span class="vr-type-icon" aria-hidden="true">📍</span>',
       tipExtra: 'פניות פתוחות ברחוב'
     });
+  }).join('');
+
+  var solutionCards = report.solutions.items.map(function(item, index) {
+    return `<div class="vr-solution">
+        <span class="vr-solution-num" aria-hidden="true">${index + 1}</span>
+        <div>
+          <strong><span aria-hidden="true">${item.icon}</span> ${escapeHtml(item.title)}</strong>
+          <p>${escapeHtml(item.text)}</p>
+        </div>
+      </div>`;
   }).join('');
 
   var questions = report.discussionQuestions.map(function(question, index) {
@@ -519,7 +525,7 @@ function buildVehiclesReport() {
 
     <section class="vr-section vr-hotspots" id="vrHotspots">
       ${sectionHead('🎯', 'מוקדים בולטים לטיפול', hotspotTotal + ' מוקדים')}
-      <div class="vr-zone-groups">${zoneGroups}${extraGroup}</div>
+      <div class="vr-zone-groups">${zoneGroups}</div>
       <div class="no-results" id="vrNoResults"><span class="no-results-icon">🔎</span><strong>לא נמצאו מוקדים</strong><br>נסו לחפש רחוב או שכונה אחרים</div>
     </section>
 
@@ -540,6 +546,12 @@ function buildVehiclesReport() {
       <div class="vr-summary-title"><span aria-hidden="true">📌</span>מסר מסכם</div>
       <p>${escapeHtml(report.summary)}</p>
     </section>
+
+    <section class="vr-section vr-solutions" data-search-hide>
+      ${sectionHead('💡', report.solutions.title, report.solutions.items.length + ' פתרונות')}
+      <div class="vr-solution-list">${solutionCards}</div>
+      <div class="vr-solutions-summary"><strong>לסיכום:</strong> ${escapeHtml(report.solutions.summary)}</div>
+    </section>
   `;
 }
 
@@ -549,6 +561,7 @@ function updateVehiclesVisibility(options) {
   var totalStreets = 0;
   var visibleStreets = 0;
   var zonesWithMatches = {};
+  var streetsShown = {};
 
   document.querySelectorAll('#vehiclesReport .vr-street').forEach(function(street) {
     var zoneKey = street.getAttribute('data-zone');
@@ -559,6 +572,7 @@ function updateVehiclesVisibility(options) {
     if (show) {
       visibleStreets += 1;
       zonesWithMatches[zoneKey] = true;
+      streetsShown[street.getAttribute('data-street')] = true;
     }
   });
 
@@ -581,26 +595,17 @@ function updateVehiclesVisibility(options) {
     ? `מציג ${visibleStreets} מתוך ${totalStreets} מוקדים`
     : `${abandonedVehiclesReport.total.value} פניות · ${totalStreets} מוקדים`;
 
-  var visibleMarkers = [];
-  Object.keys(vehicleZoneMarkers).forEach(function(zoneKey) {
-    var marker = vehicleZoneMarkers[zoneKey];
-    var halo = vehicleZoneHalos[zoneKey];
-    if (zonesWithMatches[zoneKey]) {
-      if (!vehiclesLayer.hasLayer(halo)) halo.addTo(vehiclesLayer);
+  // The map shows exactly the streets listed in the sidebar.
+  Object.keys(vehicleStreetMarkers).forEach(function(streetName) {
+    var marker = vehicleStreetMarkers[streetName];
+    if (streetsShown[streetName]) {
       if (!vehiclesLayer.hasLayer(marker)) marker.addTo(vehiclesLayer);
-      visibleMarkers.push(marker);
     } else {
-      vehiclesLayer.removeLayer(halo);
       vehiclesLayer.removeLayer(marker);
     }
   });
 
-  if (keepView) return;
-  if (visibleMarkers.length && (zoneFilter || currentSearch)) {
-    map.fitBounds(L.featureGroup(visibleMarkers).getBounds(), { padding: [90, 90], maxZoom: 15 });
-  } else if (!zoneFilter && !currentSearch) {
-    fitLodBounds();
-  }
+  if (!keepView) fitVehiclesView();
 }
 
 // ---------------------------------------------------------------------------
@@ -668,7 +673,6 @@ function shareVehiclesWhatsApp() {
   var hotspotLines = report.zones.filter(function(zone) { return zone.hotspots.length; }).map(function(zone) {
     return '• *' + zone.name + ':* ' + zone.hotspots.join(', ');
   }).join('\n');
-  if (report.extraHotspots) hotspotLines += '\n• *' + report.extraHotspots.title + ':* ' + report.extraHotspots.streets.join(', ');
 
   var text = `📢 *${report.title} – עיריית לוד*\n${report.subtitle}\n\n` +
     `📥 סה״כ פניות פתוחות: *${report.total.value}* · בטיפול ${report.stats.inTreatment} · טרם עברו לטיפול ${report.stats.pending}\n` +

@@ -1374,6 +1374,50 @@
     .vr-street-links .act-link { margin: 0; padding: 4px 8px; border-radius: 7px; font-size: 10.8px; }
     .vr-hotspots .no-results { margin-top: 12px; }
 
+    /* Proposed solutions */
+    .vr-solution-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .vr-solution {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 10px 11px;
+      border: 1px solid #e9eef6;
+      border-radius: 11px;
+      background: #f8fafc;
+    }
+    .vr-solution-num {
+      width: 24px;
+      height: 24px;
+      flex: 0 0 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: #0f2f76;
+      color: #ffffff;
+      font-size: 11.5px;
+      font-weight: 900;
+    }
+    .vr-solution strong { display: block; color: #0f172a; font-size: 13px; font-weight: 900; line-height: 1.3; }
+    .vr-solution p { margin-top: 3px; color: #475569; font-size: 11.5px; font-weight: 600; line-height: 1.5; }
+    .vr-solutions-summary {
+      margin-top: 10px;
+      padding: 9px 11px;
+      border-radius: 10px;
+      background: #eff6ff;
+      border-right: 4px solid #1d4ed8;
+      color: #172554;
+      font-size: 12.5px;
+      font-weight: 700;
+      line-height: 1.55;
+    }
+    .vr-solutions-summary strong { font-weight: 900; }
+
     /* Discussion questions */
     .vr-questions { list-style: none; display: flex; flex-direction: column; gap: 7px; margin-top: 12px; }
     .vr-questions li {
@@ -1479,11 +1523,58 @@
     .vr-tooltip span { display: block; color: #cbd5e1; font-size: 11.5px; font-weight: 700; }
     .vr-tooltip em { display: block; margin-top: 2px; color: #93c5fd; font-size: 10.5px; font-style: normal; font-weight: 700; }
 
-    /* Map: zone pins, chips, legend */
-    .vehicle-zone-pin .pin-radar-ring { border-color: var(--zone); }
-    .vehicle-zone-pin .pin-badge-container { border-color: var(--zone); }
-    .vehicle-zone-pin .pin-icon-circle { background: var(--zone); }
-    .pin-day-badge.zone-share-badge { background: var(--zone); color: var(--zone-ink, #ffffff); }
+    /* Map: one pin per hotspot street (zone color, request count inside) */
+    .vehicle-street-pin { position: relative; width: 30px; height: 30px; }
+    .street-pin-dot {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: var(--zone);
+      color: var(--zone-ink, #ffffff);
+      font-family: 'Assistant', sans-serif;
+      font-size: 13px;
+      font-weight: 900;
+      box-shadow: 0 0 0 2px #ffffff, 0 3px 10px rgba(0,0,0,0.45);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .vehicle-street-icon:hover .street-pin-dot { transform: scale(1.12); }
+    .vehicle-street-icon.selected-pin .street-pin-dot {
+      transform: scale(1.22);
+      box-shadow: 0 0 0 3px #ffffff, 0 0 0 6px #2563eb, 0 6px 16px rgba(0,0,0,0.5);
+    }
+    .street-pin-label {
+      display: none;
+      position: absolute;
+      top: 34px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.96);
+      border: 1.5px solid var(--zone);
+      color: #0f172a;
+      font-family: 'Assistant', sans-serif;
+      font-size: 11.5px;
+      font-weight: 900;
+      white-space: nowrap;
+      direction: rtl;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      pointer-events: none;
+    }
+    .vr-show-street-labels .street-pin-label,
+    .vehicle-street-icon:hover .street-pin-label,
+    .vehicle-street-icon.selected-pin .street-pin-label { display: block; }
+    .legend-zone-dot {
+      border-radius: 50% !important;
+      background: var(--zone);
+      box-shadow: 0 0 0 2px #ffffff, 0 1px 4px rgba(0,0,0,0.3) !important;
+      transform: scale(0.8);
+    }
+    .legend-zone-dot.is-unmapped { opacity: 0.45; }
     .vehicle-popup-header { background: #0f172a; border-bottom: 3px solid var(--zone); }
     .chip-dot {
       width: 9px;

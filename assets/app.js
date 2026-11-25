@@ -465,7 +465,6 @@ function clearActiveRow() {
   document.querySelectorAll('.leaflet-incident-div-icon').forEach(function(pin) { pin.classList.remove('selected-pin'); });
   document.querySelectorAll('.district-report-card').forEach(function(card) { card.classList.remove('active-report'); });
   document.querySelectorAll('.vr-active').forEach(function(element) { element.classList.remove('vr-active'); });
-  resetVehicleHalos();
 }
 
 function openMobileDrawer(eventItem) {
